@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KhetAI — AI Irrigation Advisory for Sugarcane</title>
+  <meta name="description"
+    content="Plot-specific, AI-driven irrigation and fertigation advisory for sugarcane farmers." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <header class="nav">
+    <div class="container">
+      <a href="index.html" class="brand">
+        <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+          <rect width="40" height="40" rx="10" fill="#1F4D3D" />
+          <path d="M12 28c0-8 4-13 8-16 4 3 8 8 8 16" stroke="#F5EFDD" stroke-width="2" stroke-linecap="round" />
+          <path d="M20 12v16" stroke="#C98A2C" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <span>KhetAI<br><small>IRRIGATION ADVISORY</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="#problem">Why it matters</a>
+        <a href="#workflow">How it works</a>
+        <a href="#models">AI models</a>
+        <a href="#beneficiaries">Who it's for</a>
+      </nav>
+      <div class="nav-cta">
+        <a href="login.html" class="btn btn-ghost btn-sm">Log in</a>
+        <a href="signup.html" class="btn btn-primary btn-sm">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-copy">
+        <p class="eyebrow">AI-powered sugarcane advisory</p>
+        <h1>Irrigate by <em>data</em>,<br>not by guesswork.</h1>
+        <p class="lede">KhetAI turns soil sensors, weather forecasts and satellite data into one plain-language answer
+          for every sugarcane plot: when to irrigate, for how long, and what to feed the crop next.</p>
+        <div class="hero-actions">
+          <a href="signup.html" class="btn btn-primary">Create your account</a>
+          <a href="login.html" class="btn btn-outline">I already have an account</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><b>18–25K</b><span>Sugarcane farmers in scope</span></div>
+          <div class="hero-stat"><b>10+</b><span>Predictive AI models</span></div>
+          <div class="hero-stat"><b>4</b><span>Advisory languages</span></div>
+        </div>
+      </div>
+
+      <div class="gauge-card">
+        <div class="floating-chip chip-rain"><span class="dot"></span>Rain in 2 days — plan ahead</div>
+        <div class="gauge-label">
+          <span class="eyebrow">Live plot readout</span>
+          <span class="gauge-plot">Plot 12 · 5.6 acres</span>
+        </div>
+        <div class="gauge-wrap" id="hero-gauge">
+          <div class="gauge-readout">
+            <div class="value">42%</div>
+            <div class="caption">Soil moisture, 30cm</div>
+          </div>
+        </div>
+        <div class="gauge-legend"><span>DRY</span><span>OPTIMAL</span><span>SATURATED</span></div>
+        <div class="gauge-advisory"><b>Advisory:</b> Irrigate tomorrow morning for 2.5 hours. Rainfall expected in 2
+          days — plan accordingly.</div>
+        <div class="floating-chip chip-yield"><span class="dot"></span>Predicted yield 102.6 t/ha</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">The problem</p>
+        <h2>Experience-based irrigation is costing water, power, and yield.</h2>
+        <p>Sugarcane is thirsty, and across thousands of spatially scattered plots, irrigation timing is still a
+          judgement call — not a calculation.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><b>↑ 30%</b><span>Typical over-irrigation on plots without soil-moisture data</span>
+        </div>
+        <div class="stat-card"><b>↓ Yield</b><span>Moisture-stress losses from delayed irrigation cycles</span></div>
+        <div class="stat-card"><b>⚡ Waste</b><span>Inefficient electricity use for pumps run on the wrong
+            schedule</span></div>
+        <div class="stat-card"><b>25,000</b><span>Farms too many to monitor manually, plot by plot</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="workflow" class="section-dark">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">How KhetAI works</p>
+        <h2>From field sensor to farmer's phone in five steps.</h2>
+        <p>The complete pipeline, from data acquisition through to dashboard delivery.</p>
+      </div>
+      <div class="workflow">
+        <div class="workflow-step"><span class="num">01</span>
+          <h4>Data acquisition</h4>
+          <p>Soil sensors, IoT devices, weather APIs and satellite imagery feed in continuously.</p>
+        </div>
+        <div class="workflow-step"><span class="num">02</span>
+          <h4>Data integration</h4>
+          <p>Sensor readings, farmer records and yield history unify into one plot-level profile.</p>
+        </div>
+        <div class="workflow-step"><span class="num">03</span>
+          <h4>AI analytics</h4>
+          <p>Models forecast moisture depletion, water stress, fertigation needs and yield.</p>
+        </div>
+        <div class="workflow-step"><span class="num">04</span>
+          <h4>Decision support</h4>
+          <p>Predictions become a specific recommendation for that plot, today.</p>
+        </div>
+        <div class="workflow-step"><span class="num">05</span>
+          <h4>Farmer dashboard</h4>
+          <p>Delivered in plain language, in the farmer's own language, on web or mobile.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="models">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Under the hood</p>
+        <h2>Ten purpose-built prediction models, one simple answer.</h2>
+        <p>Every recommendation you see on the dashboard is generated live from these models — not looked up from a
+          table.</p>
+      </div>
+      <div class="model-grid">
+        <div class="model-card">
+          <div class="icon">💧</div>
+          <h4>Next Irrigation Date &amp; Duration</h4>
+          <p>Combines soil moisture depletion rate with crop water demand to say exactly when, and for how long.</p>
+        </div>
+        <div class="model-card">
+          <div class="icon">🌡️</div>
+          <h4>Crop Water Requirement</h4>
+          <p>Estimates daily ETc from live weather using an FAO-56 style crop-coefficient curve for sugarcane stages.
+          </p>
+        </div>
+        <div class="model-card">
+          <div class="icon">⚠️</div>
+          <h4>Water Stress Probability</h4>
+          <p>Scores each plot Low / Medium / High so field teams know where to act first.</p>
+        </div>
+        <div class="model-card">
+          <div class="icon">🌧️</div>
+          <h4>Rainfall-Adjusted Recommendation</h4>
+          <p>Delays or shortens irrigation automatically when meaningful rain is forecast within 72 hours.</p>
+        </div>
+        <div class="model-card">
+          <div class="icon">📉</div>
+          <h4>Yield Loss Prediction</h4>
+          <p>Quantifies the yield risk of pushing irrigation past the recommended date.</p>
+        </div>
+        <div class="model-card">
+          <div class="icon">🧪</div>
+          <h4>Fertigation Recommendation</h4>
+          <p>Urea / DAP / MOP dosing tuned to crop growth stage, scaled to plot area automatically.</p>
+        </div>
+        <div class="model-card">
+          <div class="icon">📈</div>
+          <h4>Yield Prediction</h4>
+          <p>Projects tonnes/hectare from cumulative water-stress exposure and soil health.</p>
+        </div>
+        <div class="model-card">
+          <div class="icon">🔔</div>
+          <h4>Alerts &amp; Forecasting</h4>
+          <p>Surfaces sensor faults, overdue irrigation and incoming weather risk before they become losses.</p>
+        </div>
+        <div class="model-card">
+          <div class="icon">🗣️</div>
+          <h4>Farmer-Friendly Advisory (LLM)</h4>
+          <p>Converts every prediction into one short sentence, in English, Hindi, Kannada or Marathi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="beneficiaries">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Who it's built for</p>
+        <h2>One system, four very different jobs to do.</h2>
+      </div>
+      <div class="persona-grid">
+        <div class="persona-card">
+          <div class="avatar">F</div>
+          <h4>Farmers</h4>
+          <p>18,000–25,000 sugarcane growers get a plain irrigation instruction instead of a spreadsheet of numbers.</p>
+        </div>
+        <div class="persona-card">
+          <div class="avatar">S</div>
+          <h4>Cane supervisors</h4>
+          <p>Field assistants triage alerts across hundreds of plots instead of visiting each one on a fixed schedule.
+          </p>
+        </div>
+        <div class="persona-card">
+          <div class="avatar">R</div>
+          <h4>Agronomists</h4>
+          <p>Researchers validate model recommendations against soil and yield data before wider rollout.</p>
+        </div>
+        <div class="persona-card">
+          <div class="avatar">M</div>
+          <h4>Factory management</h4>
+          <p>Sugar mills forecast cane availability and plan crushing schedules from aggregated yield predictions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="cta-band">
+        <div>
+          <h2>Ready to see your plot's advisory?</h2>
+          <p>Create an account, add a plot, and get your first AI-generated irrigation recommendation in under a minute.
+          </p>
+        </div>
+        <a href="signup.html" class="btn btn-primary">Get started free</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <p class="eyebrow" style="color:#F5EFDD">KhetAI</p>
+          <p style="margin-top:10px; font-size: 14px; max-width: 34ch; color: rgba(245,239,221,0.65);">An AI-enabled
+            irrigation advisory platform for smarter sugarcane cultivation.</p>
+        </div>
+        <div>
+          <h5>Product</h5>
+          <ul>
+            <li><a href="#workflow">How it works</a></li>
+            <li><a href="#models">AI models</a></li>
+            <li><a href="signup.html">Sign up</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Account</h5>
+          <ul>
+            <li><a href="login.html">Log in</a></li>
+            <li><a href="signup.html">Create account</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 KhetAI · AI irrigation advisory for sugarcane</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/gauge.js"></script>
+  <script>
+    document.getElementById("hero-gauge").innerHTML = renderGauge({ pct: 42 });
+  </script>
+</body>
+
+</html>

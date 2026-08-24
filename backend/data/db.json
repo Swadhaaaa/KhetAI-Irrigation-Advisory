@@ -1,0 +1,621 @@
+{
+  "users": [
+    {
+      "id": "usr_b1a8d75667",
+      "name": "Ramesh Patil",
+      "mobile": "9999999999",
+      "village": "Yalakarti",
+      "taluk": "Hukkeri",
+      "district": "Belagavi",
+      "passwordHash": "$2a$10$Vxwu.3ED0Y7OVBtz6AnM3eRWsqamTFyaiWhRXvIMM/VuaUh5FcGJi",
+      "createdAt": "2026-08-24T09:22:41.966Z"
+    },
+    {
+      "id": "usr_51f8f9303d",
+      "name": "Ramesh patil",
+      "mobile": "2222222222222",
+      "village": "yalakarti",
+      "taluk": "hukerri",
+      "district": "belagvi",
+      "passwordHash": "$2a$10$/xYRhDiEnX3ZZSy0VUznQOhfg5BFJnnIF.rQP4P9XEhnPNelVvNQ2",
+      "createdAt": "2026-08-24T09:24:21.561Z"
+    }
+  ],
+  "plots": [
+    {
+      "id": "plt_19172105d8",
+      "userId": "usr_b1a8d75667",
+      "name": "Patil Farm - Plot 12",
+      "area": 5.6,
+      "crop": "Sugarcane",
+      "variety": "Co 86032",
+      "plantingDate": "2026-02-24",
+      "soilType": "Clay Loam",
+      "lat": 16.434030964708594,
+      "lng": 75.28323136126362,
+      "createdAt": "2026-08-24T09:22:41.971Z"
+    },
+    {
+      "id": "plt_d8e1192ab1",
+      "userId": "usr_b1a8d75667",
+      "name": "Patil Farm - Plot 14",
+      "area": 3.2,
+      "crop": "Sugarcane",
+      "variety": "Co 0238",
+      "plantingDate": "2026-06-24",
+      "soilType": "Loam",
+      "lat": 16.459960297871607,
+      "lng": 75.01336582446741,
+      "createdAt": "2026-08-24T09:22:42.064Z"
+    },
+    {
+      "id": "plt_c9916fdf87",
+      "userId": "usr_51f8f9303d",
+      "name": "patil farm",
+      "area": 5.6,
+      "crop": "Sugarcane",
+      "variety": "Co 86032",
+      "plantingDate": "2222-04-04",
+      "soilType": "Sandy Loam",
+      "lat": 16.558395994584362,
+      "lng": 75.06152940094434,
+      "createdAt": "2026-08-24T09:24:41.170Z"
+    }
+  ],
+  "sensorReadings": [
+    {
+      "id": "snr_b9ca6b7e43",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-10",
+      "soilMoisture30": 29.7,
+      "soilMoisture60": 31.5,
+      "soilTempC": 29.9,
+      "ambientTempC": 31.6,
+      "ambientHumidityPct": 57,
+      "ndvi": 0.65
+    },
+    {
+      "id": "snr_5a31cc8f1f",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-11",
+      "soilMoisture30": 28.4,
+      "soilMoisture60": 30.7,
+      "soilTempC": 26.5,
+      "ambientTempC": 28,
+      "ambientHumidityPct": 62,
+      "ndvi": 0.83
+    },
+    {
+      "id": "snr_7b4c636c5d",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-12",
+      "soilMoisture30": 26.8,
+      "soilMoisture60": 28.8,
+      "soilTempC": 27.7,
+      "ambientTempC": 27.3,
+      "ambientHumidityPct": 84,
+      "ndvi": 0.82
+    },
+    {
+      "id": "snr_2129c0376a",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-13",
+      "soilMoisture30": 25.1,
+      "soilMoisture60": 27,
+      "soilTempC": 29.7,
+      "ambientTempC": 28.4,
+      "ambientHumidityPct": 74,
+      "ndvi": 0.66
+    },
+    {
+      "id": "snr_c300d2d9da",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-14",
+      "soilMoisture30": 32.2,
+      "soilMoisture60": 34,
+      "soilTempC": 29.8,
+      "ambientTempC": 30.5,
+      "ambientHumidityPct": 66,
+      "ndvi": 0.61
+    },
+    {
+      "id": "snr_c7a1f5fda5",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-15",
+      "soilMoisture30": 30.8,
+      "soilMoisture60": 33.1,
+      "soilTempC": 30,
+      "ambientTempC": 31.8,
+      "ambientHumidityPct": 76,
+      "ndvi": 0.78
+    },
+    {
+      "id": "snr_a9a64c3647",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-16",
+      "soilMoisture30": 29.5,
+      "soilMoisture60": 32,
+      "soilTempC": 26.6,
+      "ambientTempC": 29.7,
+      "ambientHumidityPct": 69,
+      "ndvi": 0.56
+    },
+    {
+      "id": "snr_021afb86a6",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-17",
+      "soilMoisture30": 28.5,
+      "soilMoisture60": 31,
+      "soilTempC": 26.1,
+      "ambientTempC": 28.8,
+      "ambientHumidityPct": 75,
+      "ndvi": 0.77
+    },
+    {
+      "id": "snr_efb645f5b3",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-18",
+      "soilMoisture30": 27.6,
+      "soilMoisture60": 29.8,
+      "soilTempC": 28.8,
+      "ambientTempC": 31.4,
+      "ambientHumidityPct": 85,
+      "ndvi": 0.69
+    },
+    {
+      "id": "snr_40619ac35d",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-19",
+      "soilMoisture30": 34,
+      "soilMoisture60": 36.1,
+      "soilTempC": 28.9,
+      "ambientTempC": 30.1,
+      "ambientHumidityPct": 59,
+      "ndvi": 0.64
+    },
+    {
+      "id": "snr_b94a9ff73a",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-20",
+      "soilMoisture30": 33.1,
+      "soilMoisture60": 34.8,
+      "soilTempC": 29.5,
+      "ambientTempC": 27.8,
+      "ambientHumidityPct": 82,
+      "ndvi": 0.84
+    },
+    {
+      "id": "snr_c5d43ffedb",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-21",
+      "soilMoisture30": 31.5,
+      "soilMoisture60": 33.9,
+      "soilTempC": 29.7,
+      "ambientTempC": 29.2,
+      "ambientHumidityPct": 69,
+      "ndvi": 0.64
+    },
+    {
+      "id": "snr_e0e76670fa",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-22",
+      "soilMoisture30": 30.1,
+      "soilMoisture60": 32.4,
+      "soilTempC": 28.5,
+      "ambientTempC": 27.3,
+      "ambientHumidityPct": 66,
+      "ndvi": 0.78
+    },
+    {
+      "id": "snr_525bc06493",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-23",
+      "soilMoisture30": 28.8,
+      "soilMoisture60": 30.9,
+      "soilTempC": 28.5,
+      "ambientTempC": 30.2,
+      "ambientHumidityPct": 74,
+      "ndvi": 0.76
+    },
+    {
+      "id": "snr_9ec0884d9f",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-24",
+      "soilMoisture30": 27.1,
+      "soilMoisture60": 29.3,
+      "soilTempC": 27,
+      "ambientTempC": 29.8,
+      "ambientHumidityPct": 69,
+      "ndvi": 0.71
+    },
+    {
+      "id": "snr_1affb8ea6a",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-10",
+      "soilMoisture30": 23.9,
+      "soilMoisture60": 26.4,
+      "soilTempC": 26.3,
+      "ambientTempC": 30.7,
+      "ambientHumidityPct": 67,
+      "ndvi": 0.79
+    },
+    {
+      "id": "snr_e949306e59",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-11",
+      "soilMoisture30": 22.5,
+      "soilMoisture60": 24.3,
+      "soilTempC": 27.5,
+      "ambientTempC": 31.5,
+      "ambientHumidityPct": 69,
+      "ndvi": 0.7
+    },
+    {
+      "id": "snr_c6a88f8651",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-12",
+      "soilMoisture30": 20.9,
+      "soilMoisture60": 23.3,
+      "soilTempC": 27.1,
+      "ambientTempC": 30.4,
+      "ambientHumidityPct": 58,
+      "ndvi": 0.71
+    },
+    {
+      "id": "snr_9a797dd9d9",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-13",
+      "soilMoisture30": 19.5,
+      "soilMoisture60": 21.1,
+      "soilTempC": 29.9,
+      "ambientTempC": 30.6,
+      "ambientHumidityPct": 76,
+      "ndvi": 0.66
+    },
+    {
+      "id": "snr_3f9ca56672",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-14",
+      "soilMoisture30": 26.8,
+      "soilMoisture60": 28.4,
+      "soilTempC": 26.5,
+      "ambientTempC": 28.9,
+      "ambientHumidityPct": 80,
+      "ndvi": 0.71
+    },
+    {
+      "id": "snr_79dcd9f68a",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-15",
+      "soilMoisture30": 25.3,
+      "soilMoisture60": 27.6,
+      "soilTempC": 29.4,
+      "ambientTempC": 28.5,
+      "ambientHumidityPct": 74,
+      "ndvi": 0.59
+    },
+    {
+      "id": "snr_48b9b2e45f",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-16",
+      "soilMoisture30": 24.2,
+      "soilMoisture60": 26.1,
+      "soilTempC": 29.5,
+      "ambientTempC": 31.7,
+      "ambientHumidityPct": 62,
+      "ndvi": 0.8
+    },
+    {
+      "id": "snr_0acdbd0045",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-17",
+      "soilMoisture30": 22.8,
+      "soilMoisture60": 24.9,
+      "soilTempC": 29.5,
+      "ambientTempC": 30.7,
+      "ambientHumidityPct": 76,
+      "ndvi": 0.75
+    },
+    {
+      "id": "snr_f3fe331ae1",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-18",
+      "soilMoisture30": 21.1,
+      "soilMoisture60": 23.5,
+      "soilTempC": 28,
+      "ambientTempC": 29.1,
+      "ambientHumidityPct": 60,
+      "ndvi": 0.61
+    },
+    {
+      "id": "snr_166c0590fe",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-19",
+      "soilMoisture30": 28,
+      "soilMoisture60": 29.6,
+      "soilTempC": 27.3,
+      "ambientTempC": 28.8,
+      "ambientHumidityPct": 67,
+      "ndvi": 0.71
+    },
+    {
+      "id": "snr_999940f4ca",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-20",
+      "soilMoisture30": 26.8,
+      "soilMoisture60": 28.5,
+      "soilTempC": 30,
+      "ambientTempC": 30.4,
+      "ambientHumidityPct": 74,
+      "ndvi": 0.64
+    },
+    {
+      "id": "snr_3222ca4d68",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-21",
+      "soilMoisture30": 25.4,
+      "soilMoisture60": 27.6,
+      "soilTempC": 27.9,
+      "ambientTempC": 28.3,
+      "ambientHumidityPct": 81,
+      "ndvi": 0.81
+    },
+    {
+      "id": "snr_457b38fc03",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-22",
+      "soilMoisture30": 23.8,
+      "soilMoisture60": 25.7,
+      "soilTempC": 27.8,
+      "ambientTempC": 30.1,
+      "ambientHumidityPct": 69,
+      "ndvi": 0.6
+    },
+    {
+      "id": "snr_76367ffa56",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-23",
+      "soilMoisture30": 22.9,
+      "soilMoisture60": 24.5,
+      "soilTempC": 26.7,
+      "ambientTempC": 27.9,
+      "ambientHumidityPct": 79,
+      "ndvi": 0.74
+    },
+    {
+      "id": "snr_cd1f695737",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-24",
+      "soilMoisture30": 22,
+      "soilMoisture60": 23.9,
+      "soilTempC": 28.8,
+      "ambientTempC": 32.5,
+      "ambientHumidityPct": 84,
+      "ndvi": 0.81
+    },
+    {
+      "id": "snr_b2e2ac8e8e",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-10",
+      "soilMoisture30": 17.8,
+      "soilMoisture60": 19.7,
+      "soilTempC": 29.2,
+      "ambientTempC": 29.4,
+      "ambientHumidityPct": 82,
+      "ndvi": 0.69
+    },
+    {
+      "id": "snr_c6e3fae76f",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-11",
+      "soilMoisture30": 16.9,
+      "soilMoisture60": 18.6,
+      "soilTempC": 27.2,
+      "ambientTempC": 28.9,
+      "ambientHumidityPct": 80,
+      "ndvi": 0.62
+    },
+    {
+      "id": "snr_dae3ab40ad",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-12",
+      "soilMoisture30": 15.6,
+      "soilMoisture60": 18,
+      "soilTempC": 29.6,
+      "ambientTempC": 31.1,
+      "ambientHumidityPct": 59,
+      "ndvi": 0.81
+    },
+    {
+      "id": "snr_df3d445fec",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-13",
+      "soilMoisture30": 14.6,
+      "soilMoisture60": 16.2,
+      "soilTempC": 28.8,
+      "ambientTempC": 28.2,
+      "ambientHumidityPct": 69,
+      "ndvi": 0.73
+    },
+    {
+      "id": "snr_b729549572",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-14",
+      "soilMoisture30": 21.6,
+      "soilMoisture60": 24,
+      "soilTempC": 29.7,
+      "ambientTempC": 28.7,
+      "ambientHumidityPct": 74,
+      "ndvi": 0.61
+    },
+    {
+      "id": "snr_c1d20cb4bb",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-15",
+      "soilMoisture30": 20.4,
+      "soilMoisture60": 22.1,
+      "soilTempC": 29.1,
+      "ambientTempC": 27.1,
+      "ambientHumidityPct": 66,
+      "ndvi": 0.56
+    },
+    {
+      "id": "snr_0563e7064b",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-16",
+      "soilMoisture30": 19.3,
+      "soilMoisture60": 20.9,
+      "soilTempC": 27.9,
+      "ambientTempC": 30.9,
+      "ambientHumidityPct": 62,
+      "ndvi": 0.63
+    },
+    {
+      "id": "snr_947e9d5df3",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-17",
+      "soilMoisture30": 18,
+      "soilMoisture60": 20.3,
+      "soilTempC": 28.3,
+      "ambientTempC": 31.1,
+      "ambientHumidityPct": 61,
+      "ndvi": 0.74
+    },
+    {
+      "id": "snr_36f21eb173",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-18",
+      "soilMoisture30": 16.7,
+      "soilMoisture60": 19.1,
+      "soilTempC": 26.6,
+      "ambientTempC": 28.9,
+      "ambientHumidityPct": 66,
+      "ndvi": 0.63
+    },
+    {
+      "id": "snr_3c9b768ac1",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-19",
+      "soilMoisture30": 22,
+      "soilMoisture60": 23.5,
+      "soilTempC": 28.5,
+      "ambientTempC": 28.7,
+      "ambientHumidityPct": 75,
+      "ndvi": 0.77
+    },
+    {
+      "id": "snr_2add831a3e",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-20",
+      "soilMoisture30": 20.5,
+      "soilMoisture60": 22.6,
+      "soilTempC": 29.8,
+      "ambientTempC": 29.8,
+      "ambientHumidityPct": 56,
+      "ndvi": 0.66
+    },
+    {
+      "id": "snr_a6c08421da",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-21",
+      "soilMoisture30": 19.5,
+      "soilMoisture60": 21.4,
+      "soilTempC": 27.5,
+      "ambientTempC": 27,
+      "ambientHumidityPct": 73,
+      "ndvi": 0.73
+    },
+    {
+      "id": "snr_84fed93320",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-22",
+      "soilMoisture30": 18.6,
+      "soilMoisture60": 20.7,
+      "soilTempC": 29.6,
+      "ambientTempC": 28.1,
+      "ambientHumidityPct": 58,
+      "ndvi": 0.8
+    },
+    {
+      "id": "snr_7936697f52",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-23",
+      "soilMoisture30": 17,
+      "soilMoisture60": 18.9,
+      "soilTempC": 28.3,
+      "ambientTempC": 30.3,
+      "ambientHumidityPct": 62,
+      "ndvi": 0.79
+    },
+    {
+      "id": "snr_63724b34d4",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-24",
+      "soilMoisture30": 16.2,
+      "soilMoisture60": 18.2,
+      "soilTempC": 29,
+      "ambientTempC": 27.2,
+      "ambientHumidityPct": 59,
+      "ndvi": 0.82
+    }
+  ],
+  "irrigationLogs": [
+    {
+      "id": "irr_3ef1955bf9",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-14",
+      "durationHours": 1.6,
+      "waterAppliedM3": 98,
+      "loggedBy": "system-history"
+    },
+    {
+      "id": "irr_0f3034a99d",
+      "plotId": "plt_19172105d8",
+      "date": "2026-08-19",
+      "durationHours": 1.8,
+      "waterAppliedM3": 82,
+      "loggedBy": "system-history"
+    },
+    {
+      "id": "irr_233428d632",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-14",
+      "durationHours": 3.4,
+      "waterAppliedM3": 119,
+      "loggedBy": "system-history"
+    },
+    {
+      "id": "irr_58c49120bd",
+      "plotId": "plt_d8e1192ab1",
+      "date": "2026-08-19",
+      "durationHours": 2,
+      "waterAppliedM3": 105,
+      "loggedBy": "system-history"
+    },
+    {
+      "id": "irr_5077a4a0e5",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-14",
+      "durationHours": 2.8,
+      "waterAppliedM3": 98,
+      "loggedBy": "system-history"
+    },
+    {
+      "id": "irr_caab629d78",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-19",
+      "durationHours": 2.2,
+      "waterAppliedM3": 107,
+      "loggedBy": "system-history"
+    },
+    {
+      "id": "irr_6f75b94f8e",
+      "plotId": "plt_c9916fdf87",
+      "date": "2026-08-24",
+      "durationHours": 2,
+      "waterAppliedM3": 100,
+      "loggedBy": "usr_51f8f9303d"
+    }
+  ],
+  "alerts": []
+}

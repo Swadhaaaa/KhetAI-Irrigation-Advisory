@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log in — KhetAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <div class="auth-shell">
+    <div class="auth-visual">
+      <a href="index.html" class="brand">
+        <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+          <rect width="40" height="40" rx="10" fill="#F5EFDD" />
+          <path d="M12 28c0-8 4-13 8-16 4 3 8 8 8 16" stroke="#1F4D3D" stroke-width="2" stroke-linecap="round" />
+          <path d="M20 12v16" stroke="#C98A2C" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <span style="color:#F5EFDD">KhetAI<br><small style="color:rgba(245,239,221,0.6)">IRRIGATION
+            ADVISORY</small></span>
+      </a>
+      <div>
+        <p class="quote">"Irrigate tomorrow morning for 2.5 hours. Soil moisture is low and no rainfall is expected in
+          24 hours."</p>
+        <p class="quote-by">— A live advisory generated for Plot 12, Patil Farm</p>
+      </div>
+      <svg class="field-lines" viewBox="0 0 400 200" fill="none">
+        <path d="M0 150 Q 100 100 200 150 T 400 150" stroke="#F5EFDD" stroke-width="1" opacity="0.5" />
+        <path d="M0 170 Q 100 120 200 170 T 400 170" stroke="#F5EFDD" stroke-width="1" opacity="0.35" />
+        <path d="M0 190 Q 100 140 200 190 T 400 190" stroke="#F5EFDD" stroke-width="1" opacity="0.2" />
+      </svg>
+    </div>
+
+    <div class="auth-form-wrap">
+      <div class="auth-card">
+        <p class="eyebrow">Farmer workspace</p>
+        <h1>Welcome back</h1>
+        <p class="sub">Sign in to view your plot insights, irrigation schedule, and crop recommendations.</p>
+
+        <form id="login-form">
+          <div class="field">
+            <label for="mobile">Mobile number</label>
+            <input id="mobile" name="mobile" type="tel" inputmode="numeric" placeholder="Enter mobile number"
+              required />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="••••••••" required />
+          </div>
+          <div class="form-error" id="form-error"></div>
+          <div class="auth-submit">
+            <button class="btn btn-primary btn-block" type="submit" id="submit-btn">Log in</button>
+          </div>
+        </form>
+
+        <p class="auth-switch">New to KhetAI? <a href="signup.html">Create your farmer account</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    if (Auth.isLoggedIn()) window.location.href = "dashboard.html";
+
+    const form = document.getElementById("login-form");
+    const errorBox = document.getElementById("form-error");
+    const submitBtn = document.getElementById("submit-btn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorBox.classList.remove("show");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Logging in…";
+
+      const mobile = document.getElementById("mobile").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        const { token, user } = await api.login({ mobile, password });
+        Auth.setSession(token, user);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.classList.add("show");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Log in";
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — KhetAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+
+<body>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a href="index.html" class="brand">
+        <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+          <rect width="40" height="40" rx="10" fill="#F5EFDD" />
+          <path d="M12 28c0-8 4-13 8-16 4 3 8 8 8 16" stroke="#1F4D3D" stroke-width="2" stroke-linecap="round" />
+          <path d="M20 12v16" stroke="#C98A2C" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <span>KhetAI<br><small style="color:rgba(245,239,221,0.55)">IRRIGATION ADVISORY</small></span>
+      </a>
+
+      <nav>
+        <a class="side-link active" data-view="overview" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1.5" />
+            <rect x="14" y="3" width="7" height="5" rx="1.5" />
+            <rect x="14" y="12" width="7" height="9" rx="1.5" />
+            <rect x="3" y="16" width="7" height="5" rx="1.5" />
+          </svg>
+          <span data-i18n="nav.overview">Overview</span>
+        </a>
+        <a class="side-link" data-view="plots" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12l9-9 9 9" />
+            <path d="M5 10v10h14V10" />
+          </svg>
+          <span data-i18n="nav.plots">My Plots</span>
+        </a>
+        <a class="side-link" data-view="advisory" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3c4 4 6 7 6 10a6 6 0 11-12 0c0-3 2-6 6-10z" />
+          </svg>
+          <span data-i18n="nav.advisory">Irrigation Advisory</span>
+        </a>
+        <a class="side-link" data-view="weather" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 18a4 4 0 000-8 5 5 0 00-9.6-1.5A4.5 4.5 0 007 18h10z" />
+          </svg>
+          <span data-i18n="nav.weather">Weather Forecast</span>
+        </a>
+        <a class="side-link" data-view="sensors" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 12h4l2-7 4 14 2-7h4" />
+          </svg>
+          <span data-i18n="nav.sensors">Soil &amp; Sensors</span>
+        </a>
+        <a class="side-link" data-view="fertigation" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 3h6l1 4H8l1-4z" />
+            <path d="M6 7h12l-1 14H7L6 7z" />
+          </svg>
+          <span data-i18n="nav.fertigation">Fertigation</span>
+        </a>
+        <a class="side-link" data-view="yield" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 17l5-6 4 4 8-9" />
+          </svg>
+          <span data-i18n="nav.yield">Yield Prediction</span>
+        </a>
+        <a class="side-link" data-view="alerts" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 8a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z" />
+            <path d="M10 20a2 2 0 004 0" />
+          </svg>
+          <span data-i18n="nav.alerts">Alerts</span> <span id="alert-count-badge"></span>
+        </a>
+        <a class="side-link" data-view="settings" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1.08-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+          </svg>
+          <span data-i18n="nav.settings">Profile &amp; Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar" id="sidebar-avatar">?</div>
+          <div>
+            <b id="sidebar-name">—</b>
+            <span id="sidebar-village">—</span>
+          </div>
+        </div>
+        <a href="#" class="logout-link" id="logout-link" data-i18n="nav.logout">Log out</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <button class="btn btn-ghost btn-sm nav-toggle" id="sidebar-toggle" aria-label="Toggle menu">☰</button>
+          <h2 id="topbar-title" data-i18n="nav.overview">Overview</h2>
+        </div>
+        <div class="topbar-actions">
+          <select class="lang-select" id="lang-select" title="Advisory language">
+            <option value="en">EN</option>
+            <option value="hi">हिंदी</option>
+            <option value="kn">ಕನ್ನಡ</option>
+            <option value="mr">मराठी</option>
+          </select>
+          <select class="plot-select" id="plot-select"></select>
+          <button class="btn btn-gold btn-sm" id="add-plot-btn" data-i18n="actions.addPlot">+ Add plot</button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- OVERVIEW -->
+        <section class="view active" id="view-overview">
+          <div class="grid grid-4" id="overview-kpis">
+            <div class="card kpi skeleton" style="height:110px;"></div>
+            <div class="card kpi skeleton" style="height:110px;"></div>
+            <div class="card kpi skeleton" style="height:110px;"></div>
+            <div class="card kpi skeleton" style="height:110px;"></div>
+          </div>
+
+          <div style="height:24px"></div>
+
+          <div class="advisory-hero" id="overview-advisory-hero">
+            <div>
+              <p class="eyebrow"><span data-i18n="overview.recommendation">Today's recommendation</span> · <span
+                  id="overview-plot-name">—</span></p>
+              <h3 id="overview-advisory-text">Loading advisory…</h3>
+              <div class="meta">
+                <div><span data-i18n="labels.nextIrrigation">Next irrigation</span><b id="overview-next-date">—</b>
+                </div>
+                <div><span data-i18n="labels.duration">Duration</span><b id="overview-duration">—</b></div>
+                <div><span data-i18n="labels.waterStress">Water stress</span><b id="overview-stress">—</b></div>
+                <div><span data-i18n="labels.predictedYield">Predicted yield</span><b id="overview-yield">—</b></div>
+              </div>
+            </div>
+            <div class="gauge-mini-wrap">
+              <div id="overview-gauge"></div>
+            </div>
+          </div>
+
+          <div style="height:24px"></div>
+
+          <div class="grid grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3 data-i18n="overview.soilMoisture">Soil moisture — last 14 days</h3>
+                  <p class="card-sub" data-i18n="overview.sensorPerDay">30cm depth sensor, per day</p>
+                </div>
+              </div>
+              <canvas id="overview-moisture-chart" height="130"></canvas>
+            </div>
+            <div class="card">
+              <h3 data-i18n="overview.yourPlots">Your plots</h3>
+              <p class="card-sub" data-i18n="overview.quickStatus">Quick status across everything you manage</p>
+              <div style="height:14px"></div>
+              <table class="data-table" id="overview-plots-table">
+                <thead>
+                  <tr>
+                    <th>Plot</th>
+                    <th>Stage</th>
+                    <th>Stress</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- MY PLOTS -->
+        <section class="view" id="view-plots">
+          <div class="card-head" style="margin-bottom: 4px;">
+            <div>
+              <h3 style="font-size:18px">My Plots</h3>
+              <p class="card-sub">Every plot registered under your farmer profile</p>
+            </div>
+            <button class="btn btn-gold btn-sm" id="add-plot-btn-2">+ Add plot</button>
+          </div>
+          <div style="height:16px"></div>
+          <div class="grid grid-3" id="plots-grid"></div>
+        </section>
+
+        <!-- IRRIGATION ADVISORY -->
+        <section class="view" id="view-advisory">
+          <div class="advisory-hero" id="advisory-hero-full">
+            <div>
+              <p class="eyebrow"><span data-i18n="advisory.recommendation">AI Irrigation Recommendation</span> · <span
+                  id="advisory-plot-name">—</span></p>
+              <h3 id="advisory-farmer-text">Loading advisory…</h3>
+              <div class="meta">
+                <div><span data-i18n="labels.cropStage">Crop stage</span><b id="advisory-stage">—</b></div>
+                <div><span data-i18n="labels.waterRequirement">Water requirement</span><b id="advisory-etc">—</b></div>
+                <div><span data-i18n="labels.volumeNeeded">Volume needed</span><b id="advisory-volume">—</b></div>
+                <div><span data-i18n="labels.yieldLossRisk">Yield-loss risk</span><b id="advisory-riskloss">—</b></div>
+              </div>
+              <div class="lang-strip" id="advisory-lang-strip"></div>
+            </div>
+            <div class="gauge-mini-wrap">
+              <div id="advisory-gauge"></div>
+            </div>
+          </div>
+
+          <div style="height:24px"></div>
+
+          <div class="grid grid-2-even">
+            <div class="card">
+              <h3 data-i18n="advisory.modelBreakdown">Model breakdown</h3>
+              <p class="card-sub" data-i18n="advisory.calculated">How this recommendation was calculated</p>
+              <div style="height:12px"></div>
+              <table class="data-table" id="advisory-breakdown-table">
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="card">
+              <h3 data-i18n="advisory.logEvent">Log an irrigation event</h3>
+              <p class="card-sub" data-i18n="advisory.confirmPump">Confirm a pump run so future advisories account for
+                it</p>
+              <form id="log-irrigation-form" style="margin-top:14px;">
+                <div class="field-row">
+                  <div class="field"><label>Duration (hours)</label><input type="number" step="0.1" min="0"
+                      id="log-duration" value="2" required></div>
+                  <div class="field"><label>Water applied (m³)</label><input type="number" step="1" min="0"
+                      id="log-water" value="100" required></div>
+                </div>
+                <button class="btn btn-primary btn-block" style="margin-top:16px;" type="submit">Log irrigation</button>
+              </form>
+              <div style="height:16px"></div>
+              <h3 style="font-size:14px">Recent irrigation history</h3>
+              <table class="data-table" id="irrigation-history-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Duration</th>
+                    <th>Water (m³)</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- WEATHER -->
+        <section class="view" id="view-weather">
+          <div class="grid grid-2">
+            <div class="card">
+              <h3>5-day forecast</h3>
+              <p class="card-sub" id="weather-source-note">—</p>
+              <div style="height:16px"></div>
+              <div class="grid grid-4" id="weather-cards" style="grid-template-columns: repeat(5,1fr);"></div>
+            </div>
+            <div class="card">
+              <h3>Plot location</h3>
+              <p class="card-sub">Used to fetch localized weather data</p>
+              <div style="height:12px"></div>
+              <div class="map-box" id="weather-map"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SOIL & SENSORS -->
+        <section class="view" id="view-sensors">
+          <div class="grid grid-4" id="sensor-kpis"></div>
+          <div style="height:24px"></div>
+          <div class="card">
+            <h3>Soil &amp; environmental trend — last 14 days</h3>
+            <div style="height:12px"></div>
+            <canvas id="sensor-chart" height="90"></canvas>
+          </div>
+        </section>
+
+        <!-- FERTIGATION -->
+        <section class="view" id="view-fertigation">
+          <div class="grid grid-2">
+            <div class="card">
+              <h3 id="fert-stage-title">Fertigation Plan</h3>
+              <p class="card-sub" id="fert-note">—</p>
+              <div style="height:16px"></div>
+              <div class="fertigation-list" id="fert-list"></div>
+              <div id="fert-warning" style="display:none; margin-top:16px;" class="form-error show"></div>
+            </div>
+            <div class="card">
+              <h3>Per-acre guideline</h3>
+              <p class="card-sub">Standard dose before scaling to your plot area</p>
+              <div style="height:16px"></div>
+              <table class="data-table" id="fert-per-acre-table">
+                <thead>
+                  <tr>
+                    <th>Nutrient</th>
+                    <th>kg / acre</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <div style="height:16px"></div>
+              <p class="card-sub">Apply with irrigation scheduled for <b id="fert-apply-date">—</b>.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- YIELD -->
+        <section class="view" id="view-yield">
+          <div class="grid grid-2">
+            <div class="card">
+              <h3>Predicted yield</h3>
+              <p class="card-sub" id="yield-confidence-note">—</p>
+              <div style="height:20px"></div>
+              <div style="display:flex; align-items:baseline; gap:14px;">
+                <b style="font-family:var(--font-mono); font-size:44px; color:var(--cane-green-dark);"
+                  id="yield-value">—</b>
+                <span style="color:var(--ink-soft); font-size:14px;">tonnes / hectare</span>
+              </div>
+              <p style="margin-top:10px; color:var(--ink-soft); font-size:14px;">Range: <b id="yield-range">—</b> t/ha
+              </p>
+              <div style="height:20px"></div>
+              <canvas id="yield-chart" height="90"></canvas>
+            </div>
+            <div class="card">
+              <h3>What's driving this prediction</h3>
+              <p class="card-sub">Average water-stress exposure over the last 14 days</p>
+              <div style="height:20px"></div>
+              <div id="yield-stress-gauge" style="display:flex; justify-content:center;"></div>
+              <p style="text-align:center; margin-top:10px; color:var(--ink-soft); font-size:13.5px;">Lower stress
+                exposure → closer to the top of the predicted range.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ALERTS -->
+        <section class="view" id="view-alerts">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Alerts &amp; Notifications</h3>
+                <p class="card-sub">Generated live from current sensor and weather conditions</p>
+              </div>
+            </div>
+            <div id="alerts-list"></div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="view" id="view-settings">
+          <div class="settings-layout">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Farmer profile</h3>
+                  <p class="card-sub">Your registered account details</p>
+                </div>
+                <span class="settings-status">Active</span>
+              </div>
+              <div style="height:16px"></div>
+              <table class="data-table">
+                <tbody>
+                  <tr>
+                    <th>Name</th>
+                    <td id="settings-name">—</td>
+                  </tr>
+                  <tr>
+                    <th>Mobile</th>
+                    <td id="settings-mobile">—</td>
+                  </tr>
+                  <tr>
+                    <th>Village</th>
+                    <td id="settings-village">—</td>
+                  </tr>
+                  <tr>
+                    <th>Taluk</th>
+                    <td id="settings-taluk">—</td>
+                  </tr>
+                  <tr>
+                    <th>District</th>
+                    <td id="settings-district">—</td>
+                  </tr>
+                  <tr>
+                    <th>Member since</th>
+                    <td id="settings-since">—</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="settings-actions">
+                <button class="btn btn-outline btn-sm" id="edit-profile-btn" type="button">Edit profile</button>
+                <button class="btn btn-ghost btn-sm" id="download-data-btn" type="button">Download my data</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Advisory preferences</h3>
+                  <p class="card-sub">Choose how KhetAI presents recommendations</p>
+                </div>
+              </div>
+              <div class="settings-form">
+                <div class="field">
+                  <label for="settings-language">Advisory language</label>
+                  <select id="settings-language">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी</option>
+                    <option value="kn">ಕನ್ನಡ</option>
+                    <option value="mr">मराठी</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="settings-units">Measurement units</label>
+                  <select id="settings-units">
+                    <option value="metric">Metric — acres, m³, mm</option>
+                    <option value="imperial">Imperial — acres, gallons, inches</option>
+                  </select>
+                </div>
+                <div class="setting-option">
+                  <div><b>Plain-language recommendations</b><span>Keep advice short and farmer-friendly</span></div>
+                  <label class="switch"><input type="checkbox" id="plain-language-toggle" checked><span></span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Notifications</h3>
+                  <p class="card-sub">Stay ahead of irrigation and weather changes</p>
+                </div>
+              </div>
+              <div class="settings-options">
+                <div class="setting-option">
+                  <div><b>Irrigation reminders</b><span>Get notified before the next recommended event</span></div>
+                  <label class="switch"><input type="checkbox" id="irrigation-notifications"
+                      checked><span></span></label>
+                </div>
+                <div class="setting-option">
+                  <div><b>Rainfall alerts</b><span>Know when rain may change your schedule</span></div><label
+                    class="switch"><input type="checkbox" id="rain-notifications" checked><span></span></label>
+                </div>
+                <div class="setting-option">
+                  <div><b>Sensor health alerts</b><span>Be alerted when readings look unusual</span></div><label
+                    class="switch"><input type="checkbox" id="sensor-notifications" checked><span></span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Account &amp; security</h3>
+                  <p class="card-sub">Manage access to your farmer account</p>
+                </div>
+              </div>
+              <div class="security-list">
+                <button class="setting-action" id="change-password-btn" type="button"><span><b>Change
+                      password</b><small>Update your login password</small></span><strong>›</strong></button>
+                <button class="setting-action" id="sign-out-all-btn" type="button"><span><b>Sign out
+                      everywhere</b><small>Clear this account from all saved
+                      sessions</small></span><strong>›</strong></button>
+                <button class="setting-action danger" id="delete-account-btn" type="button"><span><b>Delete
+                      account</b><small>Permanently remove your profile and
+                      plots</small></span><strong>›</strong></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="plot-modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Add a new plot</h3>
+        <button class="modal-close" id="modal-close">&times;</button>
+      </div>
+      <form id="plot-form">
+        <div class="field"><label>Plot name</label><input id="plot-name" placeholder="Patil Farm - Plot 16" required>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Area (acres)</label><input id="plot-area" type="number" step="0.1" min="0.1"
+              placeholder="5.6" required></div>
+          <div class="field"><label>Soil type</label>
+            <select id="plot-soil" required>
+              <option value="Sandy">Sandy</option>
+              <option value="Sandy Loam">Sandy Loam</option>
+              <option value="Loam" selected>Loam</option>
+              <option value="Clay Loam">Clay Loam</option>
+              <option value="Clay">Clay</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Variety</label><input id="plot-variety" placeholder="Co 86032" value="Co 86032">
+          </div>
+          <div class="field"><label>Planting date</label><input id="plot-planting" type="date" required></div>
+        </div>
+        <div class="field hint-field">
+          <label>Location (optional)</label>
+          <div class="field-row">
+            <input id="plot-lat" type="number" step="0.0001" placeholder="Latitude">
+            <input id="plot-lng" type="number" step="0.0001" placeholder="Longitude">
+          </div>
+          <p class="hint">Leave blank to auto-place near Sameerwadi, Northern Karnataka.</p>
+        </div>
+        <div class="form-error" id="plot-form-error"></div>
+        <button class="btn btn-primary btn-block" style="margin-top:20px;" type="submit">Save plot</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/gauge.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+
+</html>
