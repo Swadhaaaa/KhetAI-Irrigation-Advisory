@@ -1,194 +1,545 @@
-# KhetAI — AI Irrigation Advisory System for Sugarcane
+# KhetAI — Irrigation Advisory
 
-A full working implementation of the **KJS-AGR-01** use case: *"Irrigation Advisory
-System for Sugarcane Crop using AI and Sensor-based Technology"* (KIAAR &
-Godavari Biorefineries Ltd., K J Somaiya Institute of Technology).
+KhetAI is a sugarcane irrigation decision-support application. It combines plot information, simulated soil-sensor readings, weather forecasts, and transparent agronomic calculations to produce plot-specific irrigation, fertigation, and yield guidance.
 
-It includes:
+The application is designed for sugarcane farmers and agricultural field teams who need a concise recommendation about when to irrigate, how long to irrigate, how much water is required, and what crop information needs attention.
 
-- A marketing **landing page**, **login/signup**, and a full **dashboard**.
-- A real **Node.js/Express backend API** with JWT authentication.
-- Nine rule-based "AI" models (irrigation date & duration, crop water
-  requirement, water-stress probability, rainfall-adjusted advisory, yield-loss
-  risk, fertigation plan, yield prediction, alerts, and a multilingual
-  farmer-friendly advisory generator) — all computed live from real inputs,
-  not hardcoded.
-- **Live weather** from the free [Open-Meteo](https://open-meteo.com) API
-  (falls back to a realistic simulator if you're offline).
-- Simulated **IoT soil-moisture sensors** with believable day-by-day trends.
-- Charts (Chart.js) and a plot-location map (Leaflet/OpenStreetMap).
-- A tiny JSON-file database (`backend/data/db.json`) — no external database
-  server to install.
+KhetAI is a working demonstration rather than a production machine-learning platform. Its advisory engine uses deterministic agronomic formulas and simulated sensor data. Weather is fetched from Open-Meteo when available and falls back to a deterministic simulated forecast if the request fails.
 
----
+## Live Demo
 
-## 1. Project structure
+- Frontend: [https://khet-ai-irrigation-advisory.vercel.app](https://khet-ai-irrigation-advisory.vercel.app/)
+- Backend API: [https://khet-ai-backend-w1l0.onrender.com](https://khet-ai-backend-w1l0.onrender.com/)
+- Health check: [https://khet-ai-backend-w1l0.onrender.com/api/health](https://khet-ai-backend-w1l0.onrender.com/api/health)
 
+## Contents
+
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [API Reference](#api-reference)
+- [Authentication](#authentication)
+- [Local Development](#local-development)
+- [Environment Variables](#environment-variables)
+- [Deployment](#deployment)
+- [Storage Limitations](#storage-limitations)
+- [External Services](#external-services)
+- [Application Screens](#application-screens)
+- [Security](#security)
+- [Future Improvements](#future-improvements)
+- [Screenshots](#screenshots)
+- [Credits](#credits)
+
+## Features
+
+### Accounts and Authentication
+
+- Farmer registration with name, mobile number, and optional village, taluk, and district.
+- Login using mobile number and password.
+- Password hashing with `bcryptjs`.
+- JWT access-token generation and verification.
+- Protected API routes scoped to the authenticated user's plots and data.
+- Browser session storage using `localStorage` for the JWT and public user profile.
+
+### Dashboard
+
+- Overview with total managed area, average water stress, estimated current water need, and recent irrigation events.
+- Plot selector for switching between managed plots.
+- Navigation across overview, plots, advisory, weather, sensors, fertigation, yield, alerts, and profile settings.
+- Responsive layout for desktop and smaller screens.
+- Local preference storage for advisory language, measurement units, plain-language mode, and notification toggles.
+
+### Plot Management
+
+- List plots owned by the current user.
+- Create plots with name, area, crop, variety, planting date, soil type, and optional coordinates.
+- Automatic default coordinates near the Northern Karnataka region when coordinates are omitted.
+- View individual plot details.
+- Update plot records through the backend API.
+- Delete plots with cleanup of related sensor readings, irrigation logs, and alerts.
+- New plots receive generated history so charts are populated immediately.
+
+### Irrigation Advisory
+
+For each plot, the backend calculates and returns:
+
+- Sugarcane crop stage from crop age.
+- Crop age in months.
+- Crop coefficient (`Kc`).
+- Estimated reference evapotranspiration (`ET0`).
+- Crop water requirement (`ETc`).
+- Field capacity and current soil moisture.
+- Moisture depletion percentage.
+- Next irrigation date and days remaining.
+- Suggested irrigation duration.
+- Net irrigation requirement in millimetres.
+- Estimated water volume in cubic metres.
+- Water-stress probability and Low/Medium/High level.
+- Yield-loss risk percentage.
+- Rainfall-adjusted scheduling note.
+
+The farmer-facing advisory sentence is available in English, Hindi, Kannada, and Marathi.
+
+Users can log an irrigation event with duration and water applied. The event is stored and appears in irrigation history and dashboard totals.
+
+### Weather
+
+- Five-day forecast for the selected plot's coordinates.
+- Maximum and minimum temperature, humidity, precipitation, rain probability, and condition.
+- Open-Meteo data when the external request succeeds.
+- Deterministic simulated five-day fallback when Open-Meteo is unavailable.
+- Leaflet map showing the plot location with OpenStreetMap tiles.
+
+### Soil and Sensor Information
+
+- Latest 30 cm and 60 cm soil-moisture readings.
+- Soil temperature, ambient temperature, ambient humidity, and NDVI values.
+- Fourteen-day sensor history.
+- Line charts rendered with Chart.js.
+
+Sensor readings are simulated in the repository. They are not received from physical IoT hardware.
+
+### Fertigation
+
+- Stage-specific per-acre recommendations for Urea, DAP, and MOP/Potash.
+- Total quantities scaled to the selected plot's area.
+- Recommended application date linked to the irrigation advisory.
+- Warning when a long irrigation delay may reduce fertigation uptake efficiency.
+
+### Yield Prediction
+
+- Predicted tonnes per hectare.
+- Low and high prediction range.
+- Confidence note based on recent water-stress exposure.
+- Bar chart for low, predicted, and high estimates.
+- Stress gauge based on fourteen days of simulated sensor history.
+
+This is a formula-driven estimate, not a trained machine-learning model.
+
+### Alerts
+
+The alerts endpoint generates current alerts for the user's plots based on:
+
+- High soil-moisture stress.
+- Significant forecast rainfall.
+- Irrigation delay.
+- A normal sensor-check status.
+
+Alerts are sorted by severity. Users can mark generated alert IDs as read; read markers are stored in the JSON data file.
+
+## How It Works
+
+```mermaid
+flowchart LR
+    U[User] --> V[Vercel frontend\nStatic HTML CSS JavaScript]
+    V -->|/api/*| R[Vercel rewrite]
+    R --> S[Render backend\nExpress API]
+    S --> A[JWT authentication]
+    S --> D[backend/data/db.json]
+    S --> E[Advisory engine\nformulas and simulations]
+    S --> W[Open-Meteo\n5-day forecast]
+    W -->|fallback on failure| E
+    D --> S
+    E --> S
+    S --> V
 ```
-irrigation-advisory-system/
-├── backend/
-│   ├── server.js            # Express app entry point (also serves the frontend)
-│   ├── db.js                 # JSON file "database" helpers
-│   ├── data/db.json           # Your data lives here (auto-created/updated)
-│   ├── middleware/auth.js     # JWT auth guard
-│   ├── routes/                # One file per API resource
-│   ├── utils/
-│   │   ├── aiEngine.js         # The irrigation/fertigation/yield "AI" models
-│   │   ├── weather.js          # Open-Meteo integration + offline fallback
-│   │   ├── sensorSim.js        # Simulated IoT sensor data generator
-│   │   ├── multilingual.js     # LLM-style multilingual advisory templates
-│   │   └── seed.js             # Optional demo-data seeding script
-│   ├── package.json
-│   └── .env                    # Local configuration (already filled in)
-└── frontend/
-    ├── index.html               # Landing page
-    ├── login.html / signup.html # Auth pages
-    ├── dashboard.html            # Main app (single page, tab-based)
-    ├── css/style.css
-    └── js/                        # api.js, dashboard.js, gauge.js, config.js
+
+### Request Flow
+
+1. A user opens the static frontend hosted by Vercel.
+2. The frontend sends requests to paths such as `/api/auth/login` and `/api/advisory/:plotId`.
+3. `frontend/vercel.json` rewrites those requests to the deployed Render backend.
+4. Express parses the request, verifies the JWT when required, and limits records to the authenticated user.
+5. Route handlers read or write `backend/data/db.json` and call the advisory, sensor, or weather utilities.
+6. The JSON response is returned through the rewrite and rendered in the browser.
+
+Locally, `backend/server.js` also serves the `frontend` directory, so the complete application can run from one Node.js process.
+
+## Technology Stack
+
+### Frontend
+
+| Technology | Actual use |
+|---|---|
+| HTML5 | Landing, login, signup, and dashboard pages |
+| CSS3 | Shared responsive styling in `frontend/css/style.css` |
+| Vanilla JavaScript | API client, authentication state, navigation, rendering, preferences, and interactions |
+| Chart.js 4.4.4 | Sensor line charts and yield bar chart via CDN |
+| Leaflet 1.9.4 | Plot map and marker via CDN |
+| Google Fonts | Fraunces, Inter, and IBM Plex Mono via CDN |
+
+### Backend
+
+| Technology | Actual use |
+|---|---|
+| Node.js | Runtime |
+| Express 4 | HTTP server and API routing |
+| `bcryptjs` | Password hashing and comparison |
+| `jsonwebtoken` | JWT creation and verification |
+| `cors` | Cross-origin response middleware |
+| `dotenv` | Loading backend environment variables |
+
+The backend uses Node's built-in `fetch` and `AbortController` for the Open-Meteo request and Node's built-in filesystem and path modules for JSON storage. `nodemon` is available as a development dependency, but there is no frontend build tool.
+
+### Data
+
+The current data layer is a lightweight JSON file database at `backend/data/db.json`. It stores users, plots, sensor readings, irrigation logs, and read-alert markers. The repository includes sample data, and the seed script can add demo data where appropriate.
+
+### Deployment
+
+- GitHub stores the source repository.
+- Vercel hosts the static frontend from `frontend`.
+- Render hosts the Node.js backend from `backend`.
+- Vercel rewrites frontend `/api/:path*` requests to the Render backend.
+
+## Project Structure
+
+```text
+KhetAI---Irrigation-Advisory/
+├── README.md
+├── frontend/
+│   ├── index.html
+│   ├── login.html
+│   ├── signup.html
+│   ├── dashboard.html
+│   ├── vercel.json
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       ├── api.js
+│       ├── config.js
+│       ├── dashboard.js
+│       └── gauge.js
+└── backend/
+    ├── .env.example
+    ├── .gitignore
+    ├── data/
+    │   └── db.json
+    ├── db.js
+    ├── package.json
+    ├── package-lock.json
+    ├── server.js
+    ├── middleware/
+    │   └── auth.js
+    ├── routes/
+    │   ├── advisory.routes.js
+    │   ├── alerts.routes.js
+    │   ├── auth.routes.js
+    │   ├── dashboard.routes.js
+    │   ├── fertigation.routes.js
+    │   ├── plots.routes.js
+    │   ├── sensors.routes.js
+    │   ├── weather.routes.js
+    │   └── yield.routes.js
+    └── utils/
+        ├── aiEngine.js
+        ├── idgen.js
+        ├── multilingual.js
+        ├── seed.js
+        ├── sensorSim.js
+        └── weather.js
 ```
 
-The backend serves the frontend as static files, so **you only need to run
-one server** to use the whole app.
+### Important Files
 
----
+- `frontend/index.html`: public landing page and static entry point.
+- `frontend/login.html`: login form and session creation flow.
+- `frontend/signup.html`: farmer registration form.
+- `frontend/dashboard.html`: authenticated application shell and dashboard views.
+- `frontend/js/api.js`: same-origin API client and authentication helpers.
+- `frontend/js/config.js`: defines `API_BASE` as `/api`.
+- `frontend/js/dashboard.js`: dashboard state, API calls, view rendering, charts, language handling, and settings controls.
+- `frontend/vercel.json`: proxies `/api/:path*` to Render.
+- `backend/server.js`: Express app, API registration, static frontend serving for local use, and health endpoint.
+- `backend/db.js`: JSON-file database read/write helpers.
+- `backend/utils/aiEngine.js`: transparent irrigation, fertigation, and yield formulas.
+- `backend/utils/sensorSim.js`: generated sensor readings and history.
+- `backend/utils/weather.js`: Open-Meteo integration and deterministic fallback forecast.
+- `backend/utils/multilingual.js`: four advisory-message languages.
 
-## 2. Prerequisites
+## API Reference
 
-- [Node.js](https://nodejs.org) version **18 or newer** (check with `node -v`).
-  Node 18+ is required because the weather integration uses the built-in
-  `fetch` API.
-- [Visual Studio Code](https://code.visualstudio.com) (or any editor).
+The API is mounted under `/api`. Every route below except the public authentication operations and health check requires a Bearer JWT.
 
----
+### Health
 
-## 3. Open the project in VS Code
+| Method | Endpoint | Auth | Purpose |
+|---|---|---:|---|
+| GET | `/api/health` | No | Returns `{ "status": "ok", "time": "..." }`. |
 
-1. Unzip the folder you downloaded.
-2. Open VS Code → **File → Open Folder…** → select the unzipped
-   `irrigation-advisory-system` folder.
-3. Open a terminal inside VS Code: **Terminal → New Terminal**.
+### Authentication APIs
 
----
+| Method | Endpoint | Auth | Request | Response purpose |
+|---|---|---:|---|---|
+| POST | `/api/auth/register` | No | JSON: `name`, `mobile`, `password`; optional `village`, `taluk`, `district` | Creates a user, hashes the password, and returns a JWT plus public user data. Passwords must be at least six characters. |
+| POST | `/api/auth/login` | No | JSON: `mobile`, `password` | Verifies credentials and returns a JWT plus public user data. |
+| GET | `/api/auth/me` | Yes | Bearer token | Returns the authenticated user's public profile. |
 
-## 4. Install and run
+### Plot APIs
 
-In the VS Code terminal:
+| Method | Endpoint | Auth | Request / parameters | Response purpose |
+|---|---|---:|---|---|
+| GET | `/api/plots` | Yes | None | Lists plots owned by the authenticated user. |
+| POST | `/api/plots` | Yes | JSON: required `name`, `area`, `plantingDate`, `soilType`; optional `crop`, `variety`, `lat`, `lng` | Creates a plot and generates initial sensor and irrigation history. |
+| GET | `/api/plots/:id` | Yes | Path plot ID | Returns one owned plot. |
+| PUT | `/api/plots/:id` | Yes | JSON patch; `id` and `userId` are ignored | Updates an owned plot. |
+| DELETE | `/api/plots/:id` | Yes | Path plot ID | Deletes the plot and related sensor, irrigation, and alert records. |
+
+### Dashboard API
+
+| Method | Endpoint | Auth | Request / parameters | Response purpose |
+|---|---|---:|---|---|
+| GET | `/api/dashboard/summary` | Yes | None | Returns plot count, total area, average stress, estimated water need, recent irrigation totals, and per-plot status. |
+
+### Advisory APIs
+
+| Method | Endpoint | Auth | Request / parameters | Response purpose |
+|---|---|---:|---|---|
+| GET | `/api/advisory/languages` | Yes | None | Returns English, Hindi, Kannada, and Marathi. |
+| GET | `/api/advisory/:plotId` | Yes | Optional query `lang=en\|hi\|kn\|mr` | Returns the calculated advisory, forecast, latest reading, farmer-facing message, and selected language. |
+| POST | `/api/advisory/:plotId/log` | Yes | JSON: `durationHours`, `waterAppliedM3` | Stores a manual irrigation event. |
+| GET | `/api/advisory/:plotId/history` | Yes | Path plot ID | Returns irrigation logs for the owned plot, newest first. |
+
+### Weather APIs
+
+| Method | Endpoint | Auth | Request / parameters | Response purpose |
+|---|---|---:|---|---|
+| GET | `/api/weather/:plotId` | Yes | Path plot ID | Returns a five-day Open-Meteo forecast or simulated fallback for the plot coordinates. |
+
+### Sensor APIs
+
+| Method | Endpoint | Auth | Request / parameters | Response purpose |
+|---|---|---:|---|---|
+| GET | `/api/sensors/:plotId` | Yes | Path plot ID | Returns the latest simulated reading and fourteen days of history. |
+
+### Fertigation APIs
+
+| Method | Endpoint | Auth | Request / parameters | Response purpose |
+|---|---|---:|---|---|
+| GET | `/api/fertigation/:plotId` | Yes | Path plot ID | Returns stage-specific per-acre and plot-scaled Urea, DAP, and MOP recommendations. |
+
+### Yield APIs
+
+| Method | Endpoint | Auth | Request / parameters | Response purpose |
+|---|---|---:|---|---|
+| GET | `/api/yield/:plotId` | Yes | Path plot ID | Returns predicted yield, low/high range, confidence note, and historical stress average. |
+
+### Alert APIs
+
+| Method | Endpoint | Auth | Request / parameters | Response purpose |
+|---|---|---:|---|---|
+| GET | `/api/alerts` | Yes | None | Generates and returns current alerts for all plots owned by the authenticated user. |
+| POST | `/api/alerts/:alertId/read` | Yes | Path alert ID | Stores the alert as read for the current user. |
+
+## Authentication
+
+1. Registration validates required fields and password length.
+2. The password is hashed with `bcryptjs` using a work factor of 10 before storage.
+3. Login compares the submitted password with the stored hash.
+4. Successful registration and login sign a JWT containing the user ID, name, and mobile number.
+5. The token lifetime is controlled by `JWT_EXPIRES_IN`, defaulting to `7d` in the route logic.
+6. Protected routes read the `Authorization: Bearer <token>` header and verify the token with `JWT_SECRET`.
+7. The browser stores the token in `localStorage`. A 401 response clears the local session and redirects to `login.html`.
+
+Passwords are never returned by the API; the stored `passwordHash` is removed from public user responses.
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 18 or newer.
+- npm.
+- Internet access is optional for weather because the backend has a simulated fallback, but it is required for live Open-Meteo data and CDN assets.
+
+### Clone
+
+```bash
+git clone <repository-url>
+cd <repository-folder>
+```
+
+### Backend Setup
 
 ```bash
 cd backend
 npm install
+```
+
+Create `backend/.env` from the example:
+
+```dotenv
+PORT=5000
+JWT_SECRET=your_secret_here
+JWT_EXPIRES_IN=7d
+```
+
+Start the server:
+
+```bash
 npm start
 ```
 
-You should see:
+The server listens on `http://localhost:5000` and serves the frontend as well as the API. Open:
 
+```text
+http://localhost:5000
 ```
-🌾  Sugarcane Irrigation Advisory server running
-    → http://localhost:5000
-```
 
-Now open **http://localhost:5000** in your browser. That's it — the landing
-page, login, signup and dashboard are all served from this one address.
-
-### Optional: load demo data instantly
-
-Instead of registering a new account and adding plots by hand, you can seed a
-ready-made demo farmer with two plots and two weeks of sensor history:
+The optional seed command loads demo data into the JSON database:
 
 ```bash
 npm run seed
 ```
 
-Then log in with:
-- **Mobile:** `9999999999`
-- **Password:** `demo1234`
-
-### Developer mode (auto-restart on file changes)
+The development script uses `nodemon`:
 
 ```bash
 npm run dev
 ```
 
-(This uses `nodemon`, already listed in `devDependencies`.)
+No separate frontend installation or build command is required when using the Express server locally.
 
----
+## Environment Variables
 
-## 5. Using the app
+The backend reads these variables through `dotenv`:
 
-1. **Sign up** (or log in with the demo account above).
-2. **Add a plot** — name, area, soil type, sugarcane variety and planting
-   date. Two weeks of realistic sensor history are generated automatically so
-   charts aren't empty.
-3. Explore the sidebar:
-   - **Overview** — key numbers across all your plots plus today's advisory.
-   - **My Plots** — manage plots (add/remove).
-   - **Irrigation Advisory** — the full AI recommendation, the calculation
-     breakdown, and a form to log real irrigation events.
-   - **Weather Forecast** — live 5-day forecast + a map of the plot location.
-   - **Soil & Sensors** — soil moisture/temperature/NDVI trend charts.
-   - **Fertigation** — Urea/DAP/MOP dosing recommendation for the plot.
-   - **Yield Prediction** — predicted tonnes/hectare with a confidence range.
-   - **Alerts** — live-generated alerts (low moisture, incoming rain, overdue
-     irrigation, sensor status).
-   - **Profile & Settings** — your farmer profile.
-4. Switch the **language selector** (top bar) to see the advisory in English,
-   Hindi, Kannada or Marathi.
-5. Switch the **plot selector** (top bar) to move between your plots — every
-   view updates for the selected plot.
+| Variable | Purpose | Example |
+|---|---|---|
+| `PORT` | Port used by Express. | `5000` |
+| `JWT_SECRET` | Secret used to sign and verify JWTs. | `your_production_secret` |
+| `JWT_EXPIRES_IN` | JWT lifetime passed to `jsonwebtoken`. | `7d` |
 
----
+The local `.env` file must not be committed. It is ignored by `backend/.gitignore`. Configure production values as protected environment variables in Render. Never place `JWT_SECRET` in frontend code or expose it in browser configuration.
 
-## 6. How the "AI" actually works
+## Deployment
 
-To keep the project runnable without training real machine-learning models or
-needing API keys, every prediction is computed with transparent agronomic
-formulas in `backend/utils/aiEngine.js` (FAO-56 style crop-coefficient curves,
-soil-moisture depletion, a Hargreaves-style ET₀ estimate, etc.) — driven by
-**live weather and sensor data**, not fixed numbers. That means:
+### Frontend on Vercel
 
-- Two different plots (different soil, crop age, or area) get **different**
-  recommendations.
-- The same plot's advisory **changes day to day** as weather and simulated
-  soil moisture change.
+- Root directory: `frontend`
+- Framework preset: static/no framework
+- Build command: none
+- Output directory: the `frontend` directory itself
+- Entry page: `frontend/index.html`
 
-This is intentionally structured so you can swap in a real trained ML model
-later: every function in `aiEngine.js` has a clear input/output contract you
-can replace without touching the routes or frontend.
+`frontend/vercel.json` contains the routing configuration:
 
----
+```json
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://khet-ai-backend-w1l0.onrender.com/api/:path*"
+    }
+  ]
+}
+```
 
-## 7. Customizing
+Because `frontend/js/config.js` uses `const API_BASE = "/api"`, existing frontend API calls continue to work through the Vercel rewrite.
 
-- **Change the color/typography system:** edit the CSS variables at the top
-  of `frontend/css/style.css`.
-- **Add a new dashboard section:** add a `<section class="view" id="view-x">`
-  in `dashboard.html`, a sidebar link with `data-view="x"`, and a
-  `renderX()` function in `dashboard.js`.
-- **Add a new AI model:** add a function to `backend/utils/aiEngine.js`, wire
-  it into a route, and call it from `frontend/js/api.js`.
-- **Swap the database:** everything goes through `backend/db.js`. Replace its
-  internals with a real database client and keep the same function names
-  (`getAll`, `insert`, `update`, `remove`, `findById`) and no route code needs
-  to change.
+### Backend on Render
 
----
+- Root directory: `backend`
+- Build command: `npm install`
+- Start command: `node server.js`
+- Required environment variables: `PORT`, `JWT_SECRET`, and `JWT_EXPIRES_IN`
 
-## 8. Troubleshooting
+The Render service must allow requests from the Vercel frontend. The backend currently enables CORS with the default `cors()` middleware.
 
-| Problem | Fix |
+### GitHub Workflow
+
+The repository is hosted on GitHub. Source changes can be pushed to the configured repository and connected to Vercel and Render for deployments. Deployment providers should be configured with the project root directories above.
+
+## Storage Limitations
+
+The application does not use MongoDB, PostgreSQL, SQLite, or another external database. It uses `backend/data/db.json` through synchronous filesystem reads and writes in `backend/db.js`.
+
+This is convenient for a self-contained college or demonstration project, but it has important cloud limitations:
+
+- Filesystem writes on many serverless or ephemeral hosts are not durable between instances or redeployments.
+- Concurrent writes can overwrite one another because there is no transaction or database locking layer.
+- The complete dataset is loaded and rewritten for individual operations.
+- There is no backup, migration, indexing, replication, or multi-instance consistency.
+
+For production use, replace the `db.js` implementation with a managed persistent database such as PostgreSQL or MongoDB while preserving the route-level data contracts. Add migrations, backups, access controls, and observability before scaling beyond a demonstration deployment.
+
+## External Services
+
+| Service | Used for | Location | API key |
+|---|---|---|---|
+| Open-Meteo | Five-day weather forecast by plot latitude and longitude | `backend/utils/weather.js` | Not required |
+| OpenStreetMap tiles | Map tiles for the plot-location map | `frontend/dashboard.html` through Leaflet | Not required for this demo; follow tile-use policies for production |
+| Leaflet CDN | Map library | `frontend/dashboard.html` | Not required |
+| Chart.js CDN | Charts | `frontend/dashboard.html` | Not required |
+| Google Fonts | Fraunces, Inter, and IBM Plex Mono fonts | HTML page headers | Not required |
+
+Open-Meteo requests have a four-second abort timeout. If the request fails or returns a non-success status, `weather.js` returns a deterministic simulated forecast instead. The sensor, yield-history, and advisory data are generated locally by the backend and do not come from an external sensor platform or satellite API.
+
+## Application Screens
+
+| Page | Purpose |
 |---|---|
-| `npm start` fails with a `fetch is not defined` error | Upgrade Node.js to version 18+. |
-| Port 5000 already in use | Edit `PORT` in `backend/.env`, then restart. |
-| Weather shows "Simulated forecast" | Your machine has no internet access to `api.open-meteo.com`, or a firewall blocks it — the fallback keeps the app working either way. |
-| "Session expired" right after logging in | Clear your browser's local storage for `localhost:5000` and log in again — this can happen if `JWT_SECRET` was changed after a token was issued. |
-| Want to reset all data | Stop the server, replace the contents of `backend/data/db.json` with `{"users":[],"plots":[],"sensorReadings":[],"irrigationLogs":[],"alerts":[]}`, and restart. |
+| `index.html` | Public landing page describing KhetAI and linking to account creation and login. |
+| `login.html` | Authenticates an existing farmer through the backend login API. |
+| `signup.html` | Creates a farmer account and redirects to the dashboard. |
+| `dashboard.html` | Authenticated application containing overview, plot management, advisory, weather, sensor, fertigation, yield, alert, and profile/settings views. |
 
----
+The dashboard uses client-side view switching within one HTML document. Navigation and data requests are handled by `frontend/js/dashboard.js` and `frontend/js/api.js`.
 
-## 9. Use case reference
+## Security
 
-This build follows the *Framework for AI Use Case Integration in Curriculum
-Delivery — KJS-AGR-01* document: irrigation and fertigation advisory,
-water-stress/yield prediction, multilingual LLM-based advisory generation, a
-farmer dashboard, and alerting — mapped to a working full-stack application.
+Implemented protections include:
+
+- Password hashing with `bcryptjs`; plaintext passwords are not stored.
+- JWT-based authentication for protected routes.
+- User ownership checks on plot-scoped resources.
+- Removal of password hashes from public user responses.
+- Environment-based JWT secret configuration.
+- CORS middleware on the backend.
+- `.env` excluded through `backend/.gitignore`.
+
+Important limitations:
+
+- JWTs are stored in browser `localStorage`, which is exposed to JavaScript running in the page; an HttpOnly cookie strategy would provide stronger session protection.
+- The included JSON database has no encryption, transactions, or access-control layer of its own.
+- There is no rate limiting, account lockout, email/phone verification, password reset flow, refresh-token rotation, or audit logging.
+- The default CORS configuration is broad and should be restricted to known production origins.
+- Production deployments must use a strong, private `JWT_SECRET` rather than a development value.
+
+## Future Improvements
+
+The following are future improvements, not current capabilities:
+
+- Move persistent data to a managed relational or document database.
+- Connect real soil-moisture, weather-station, and IoT sensor ingestion pipelines.
+- Replace simulated advisory formulas with validated, monitored agronomic or machine-learning models.
+- Add server-side validation schemas, rate limiting, secure cookies, refresh tokens, password reset, and verified contact details.
+- Restrict CORS and add structured logging, health monitoring, backups, and error tracking.
+- Add automated tests for route authorization, advisory calculations, and frontend workflows.
+- Add real notification delivery through a configured SMS, email, or push provider.
+- Add richer historical analytics and role-specific views for agronomists and field supervisors.
+- Provide a dedicated mobile application or installable progressive web application.
+
+## Screenshots
+
+Screenshots can be added to this section when image files are committed to the repository.
+
+### Landing Page
+
+<!-- Add screenshot here -->
+
+### Dashboard Overview
+
+<!-- Add screenshot here -->
+
+### Irrigation Advisory
+
+<!-- Add screenshot here -->
+
+### Login
+
+<!-- Add screenshot here -->
+
+## Credits
+
+KhetAI is an educational and portfolio-ready implementation of an irrigation advisory workflow for sugarcane cultivation. The repository demonstrates a complete browser-to-API flow, transparent calculation utilities, multilingual farmer messaging, and a deployable split between a Vercel frontend and Render backend.
