@@ -30,6 +30,8 @@ app.use("/api/yield", yieldRoutes);
 app.use("/api/alerts", alertsRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
+app.use("/api/dashboard", dashboardRoutes);
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
