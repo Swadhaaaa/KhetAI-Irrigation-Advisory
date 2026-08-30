@@ -38,7 +38,9 @@ async function apiRequest(path, { method = "GET", body, auth = true } = {}) {
   }
 
   if (!res.ok) {
-    const message = (data && data.error) || `Request failed (${res.status})`;
+    const message = (data && data.error) || (res.status === 404
+      ? "Backend API not found. Check the deployed backend URL."
+      : `Request failed (${res.status})`);
     throw new Error(message);
   }
   return data;
