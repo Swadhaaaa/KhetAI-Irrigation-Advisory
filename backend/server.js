@@ -15,41 +15,26 @@ const alertsRoutes = require("./routes/alerts.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 
 const app = express();
-
-// Render provides PORT automatically
 const PORT = process.env.PORT || 5000;
-
-// --------------------------------------------------
-// Middleware
-// --------------------------------------------------
 
 app.use(cors());
 app.use(express.json());
 
-// --------------------------------------------------
-// Basic test routes
-// --------------------------------------------------
-
-// Simple test endpoint
+// TEST
 app.get("/test", (req, res) => {
-  res.status(200).send("BACKEND IS WORKING");
+  res.send("BACKEND IS WORKING");
 });
 
-// Health check endpoint
+// HEALTH
 app.get("/api/health", (req, res) => {
-  console.log("Health check received");
-
-  res.status(200).json({
+  res.json({
     status: "ok",
     message: "Backend is working",
     time: new Date().toISOString()
   });
 });
 
-// --------------------------------------------------
-// API routes
-// --------------------------------------------------
-
+// API
 app.use("/api/auth", authRoutes);
 app.use("/api/plots", plotsRoutes);
 app.use("/api/weather", weatherRoutes);
@@ -60,18 +45,12 @@ app.use("/api/yield", yieldRoutes);
 app.use("/api/alerts", alertsRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-// --------------------------------------------------
-// Serve frontend
-// --------------------------------------------------
-
+// FRONTEND
 const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
 
 app.use(express.static(FRONTEND_DIR));
 
-// --------------------------------------------------
-// Handle unknown API routes
-// --------------------------------------------------
-
+// Unknown API
 app.use("/api", (req, res) => {
   res.status(404).json({
     error: "API endpoint not found",
@@ -79,41 +58,19 @@ app.use("/api", (req, res) => {
   });
 });
 
-// --------------------------------------------------
-// Frontend fallback
-// --------------------------------------------------
-
-app.get("*", (req, res, next) => {
-  if (req.path.startsWith("/api")) {
-    return next();
-  }
-
+// Frontend pages
+app.get("*", (req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, "index.html"));
 });
 
-// --------------------------------------------------
-// Error handler
-// --------------------------------------------------
-
+// Error
 app.use((err, req, res, next) => {
-  console.error("SERVER ERROR:", err);
-
+  console.error(err);
   res.status(500).json({
     error: "Something went wrong on the server."
   });
 });
 
-// --------------------------------------------------
-// Start server
-// --------------------------------------------------
-
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("");
-  console.log("========================================");
-  console.log("🌾 Sugarcane Irrigation Advisory");
-  console.log("========================================");
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📁 Frontend directory: ${FRONTEND_DIR}`);
-  console.log("========================================");
-  console.log("");
+  console.log(`Server running on port ${PORT}`);
 });
