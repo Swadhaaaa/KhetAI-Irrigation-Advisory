@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/:path*",
-            "destination": "https://khet-ai-backend-w1l0.onrender.com/api/:path*"
+            "destination": "https://khet-ai-backend-w11o.onrender.com/api/:path*"
         }
     ]
 }
