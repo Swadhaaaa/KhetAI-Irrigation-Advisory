@@ -5,11 +5,12 @@ const { buildAdvisory } = require("./advisory.routes");
 const { computeYieldPrediction } = require("../utils/aiEngine");
 const { getHistory } = require("../utils/sensorSim");
 const { soilProfile } = require("../utils/aiEngine");
+const { asyncHandler } = require("../middleware/asyncHandler");
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get("/:plotId", async (req, res) => {
+router.get("/:plotId", asyncHandler(async (req, res) => {
   const plot = db.findById("plots", req.params.plotId);
   if (!plot || plot.userId !== req.user.id) {
     return res.status(404).json({ error: "Plot not found." });
@@ -28,6 +29,6 @@ router.get("/:plotId", async (req, res) => {
 
   const prediction = computeYieldPrediction(plot, advisory, historicalStressAvg);
   res.json({ prediction, historicalStressAvg: Math.round(historicalStressAvg) });
-});
+}));
 
 module.exports = router;

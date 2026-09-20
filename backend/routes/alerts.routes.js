@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const db = require("../db");
 const { requireAuth } = require("../middleware/auth");
 const { buildAdvisory } = require("./advisory.routes");
+const { asyncHandler } = require("../middleware/asyncHandler");
 
 const router = express.Router();
 router.use(requireAuth);
@@ -66,7 +67,7 @@ async function generateAlertsForPlot(plot) {
   return alerts;
 }
 
-router.get("/", async (req, res) => {
+router.get("/", asyncHandler(async (req, res) => {
   const plots = db.getAll("plots").filter((p) => p.userId === req.user.id);
   const readIds = new Set(
     db.getAll("alerts").filter((a) => a.userId === req.user.id).map((a) => a.id)
@@ -84,7 +85,7 @@ router.get("/", async (req, res) => {
   });
 
   res.json({ alerts: all });
-});
+}));
 
 router.post("/:alertId/read", (req, res) => {
   const existing = db.getAll("alerts");

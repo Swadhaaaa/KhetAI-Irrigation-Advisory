@@ -6,6 +6,8 @@ const { fetchForecast } = require("../utils/weather");
 const { computeIrrigationAdvisory } = require("../utils/aiEngine");
 const { generate: generateMultilingual, SUPPORTED_LANGUAGES } = require("../utils/multilingual");
 const { generateId } = require("../utils/idgen");
+const { validateBody, irrigationLogSchema } = require("../utils/validation");
+const { asyncHandler } = require("../middleware/asyncHandler");
 
 const router = express.Router();
 router.use(requireAuth);
@@ -25,7 +27,7 @@ router.get("/languages", (req, res) => {
   res.json({ languages: SUPPORTED_LANGUAGES });
 });
 
-router.get("/:plotId", async (req, res) => {
+router.get("/:plotId", asyncHandler(async (req, res) => {
   const plot = db.findById("plots", req.params.plotId);
   if (!plot || plot.userId !== req.user.id) {
     return res.status(404).json({ error: "Plot not found." });
@@ -34,21 +36,21 @@ router.get("/:plotId", async (req, res) => {
   const { advisory, forecast } = await buildAdvisory(plot);
   const farmerMessage = generateMultilingual(advisory, lang);
   res.json({ advisory, forecast, farmerMessage, lang });
-});
+}));
 
 // Log an irrigation event (manual override / confirmation of automated pump run)
-router.post("/:plotId/log", (req, res) => {
+router.post("/:plotId/log", validateBody(irrigationLogSchema), (req, res) => {
   const plot = db.findById("plots", req.params.plotId);
   if (!plot || plot.userId !== req.user.id) {
     return res.status(404).json({ error: "Plot not found." });
   }
-  const { durationHours, waterAppliedM3 } = req.body || {};
+  const { durationHours, waterAppliedM3 } = req.body;
   const log = {
     id: generateId("irr"),
     plotId: plot.id,
     date: new Date().toISOString().slice(0, 10),
-    durationHours: Number(durationHours) || 2,
-    waterAppliedM3: Number(waterAppliedM3) || 100,
+    durationHours,
+    waterAppliedM3,
     loggedBy: req.user.id,
   };
   db.insert("irrigationLogs", log);

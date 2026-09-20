@@ -3,6 +3,7 @@ const db = require("../db");
 const { generateId } = require("../utils/idgen");
 const { requireAuth } = require("../middleware/auth");
 const { backfillHistory, ensureTodayReading } = require("../utils/sensorSim");
+const { validateBody, plotSchema, plotUpdateSchema } = require("../utils/validation");
 
 const router = express.Router();
 router.use(requireAuth);
@@ -21,11 +22,8 @@ router.get("/", (req, res) => {
   res.json({ plots });
 });
 
-router.post("/", (req, res) => {
-  const { name, area, crop, variety, plantingDate, soilType, lat, lng } = req.body || {};
-  if (!name || !area || !plantingDate || !soilType) {
-    return res.status(400).json({ error: "name, area, plantingDate and soilType are required." });
-  }
+router.post("/", validateBody(plotSchema), (req, res) => {
+  const { name, area, crop, variety, plantingDate, soilType, lat, lng } = req.body;
 
   const plot = {
     id: generateId("plt"),
@@ -56,7 +54,7 @@ router.get("/:id", (req, res) => {
   res.json({ plot });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateBody(plotUpdateSchema), (req, res) => {
   const plot = ownedPlotOr404(req, res);
   if (!plot) return;
   const patch = { ...req.body };

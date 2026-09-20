@@ -1,0 +1,317 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  FARMER
+  AGRONOMIST
+  FIELD_OFFICER
+  ADMIN
+}
+
+enum DataProvenance {
+  LIVE
+  SIMULATED
+  FALLBACK
+  IMPORTED
+}
+
+enum AdvisoryStatus {
+  GENERATED
+  ACKNOWLEDGED
+  OVERRIDDEN
+  COMPLETED
+  EXPIRED
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  mobile       String        @unique
+  passwordHash String
+  village      String?
+  taluk        String?
+  district     String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  farms        Farm[]
+  roles        UserRoleLink[]
+  irrigationEvents IrrigationEvent[]
+  alertReads   AlertRead[]
+  auditLogs    AuditLog[]
+}
+
+model UserRoleLink {
+  userId    String
+  role      UserRole
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([userId, role])
+  @@index([role])
+}
+
+model Farm {
+  id          String   @id @default(cuid())
+  ownerId     String
+  name        String
+  address     String?
+  latitude    Decimal? @db.Decimal(9, 6)
+  longitude   Decimal? @db.Decimal(9, 6)
+  timezone    String   @default("Asia/Kolkata")
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  owner       User     @relation(fields: [ownerId], references: [id])
+  plots       Plot[]
+  @@index([ownerId, deletedAt])
+}
+
+model Crop {
+  id        String   @id @default(cuid())
+  name      String
+  variety   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  plots     Plot[]
+  @@unique([name, variety])
+}
+
+model Plot {
+  id              String   @id @default(cuid())
+  farmId          String
+  name            String
+  areaAcres       Decimal  @db.Decimal(12, 3)
+  cropId          String
+  variety         String?
+  plantingDate    DateTime @db.Date
+  soilType        String
+  irrigationMethod String?
+  latitude        Decimal? @db.Decimal(9, 6)
+  longitude       Decimal? @db.Decimal(9, 6)
+  deletedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  farm            Farm     @relation(fields: [farmId], references: [id])
+  crop            Crop     @relation(fields: [cropId], references: [id])
+  soilProfiles    SoilProfile[]
+  devices         SensorDevice[]
+  readings        SensorReading[]
+  weather        WeatherData[]
+  irrigationEvents IrrigationEvent[]
+  advisories      Advisory[]
+  alerts          Alert[]
+  fertilizerRecommendations FertilizerRecommendation[]
+  yieldPredictions YieldPrediction[]
+  modelPredictions ModelPrediction[]
+  @@index([farmId, deletedAt])
+  @@index([plantingDate])
+}
+
+model SoilProfile {
+  id             String   @id @default(cuid())
+  plotId         String
+  soilType       String
+  fieldCapacity  Decimal? @db.Decimal(5, 2)
+  wiltingPoint   Decimal? @db.Decimal(5, 2)
+  infiltrationRate Decimal? @db.Decimal(8, 2)
+  source         String?
+  version        String?
+  measuredAt     DateTime?
+  plot           Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  @@index([plotId, measuredAt])
+}
+
+model SensorDevice {
+  id          String   @id @default(cuid())
+  plotId      String
+  deviceKey   String   @unique
+  name        String?
+  firmware    String?
+  isActive    Boolean  @default(true)
+  lastSeenAt  DateTime?
+  batteryPct  Decimal? @db.Decimal(5, 2)
+  connected   Boolean  @default(false)
+  calibration Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  readings    SensorReading[]
+  @@index([plotId, isActive])
+}
+
+model SensorReading {
+  id              String        @id @default(cuid())
+  plotId          String
+  deviceId        String?
+  eventKey        String        @unique
+  measuredAt      DateTime
+  soilMoisture30  Decimal?      @db.Decimal(5, 2)
+  soilMoisture60  Decimal?      @db.Decimal(5, 2)
+  soilTemperature Decimal?      @db.Decimal(6, 2)
+  ambientTemperature Decimal?   @db.Decimal(6, 2)
+  humidityPct     Decimal?      @db.Decimal(5, 2)
+  rainfallMm      Decimal?      @db.Decimal(8, 2)
+  ndvi            Decimal?      @db.Decimal(5, 3)
+  batteryPct      Decimal?      @db.Decimal(5, 2)
+  quality         String        @default("VALID")
+  provenance      DataProvenance
+  rawPayload      Json?
+  plot            Plot          @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  device          SensorDevice? @relation(fields: [deviceId], references: [id])
+  @@index([deviceId, measuredAt])
+  @@index([plotId, measuredAt])
+}
+
+model WeatherData {
+  id            String        @id @default(cuid())
+  plotId        String
+  kind          String
+  provider      String
+  latitude      Decimal       @db.Decimal(9, 6)
+  longitude     Decimal       @db.Decimal(9, 6)
+  validAt       DateTime
+  fetchedAt     DateTime      @default(now())
+  temperatureMax Decimal?
+  temperatureMin Decimal?
+  humidityPct   Decimal?
+  rainfallMm    Decimal?
+  rainProbability Decimal?
+  windSpeed     Decimal?
+  rawPayload    Json?
+  provenance    DataProvenance
+  plot          Plot          @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  @@unique([plotId, kind, provider, validAt])
+  @@index([plotId, validAt])
+}
+
+model IrrigationEvent {
+  id             String   @id @default(cuid())
+  plotId         String
+  actorId        String?
+  eventKey       String   @unique @default(cuid())
+  occurredAt     DateTime
+  durationHours  Decimal  @db.Decimal(8, 2)
+  waterAppliedM3 Decimal  @db.Decimal(12, 2)
+  method         String?
+  source         String   @default("FARMER")
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  plot           Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  actor          User?    @relation(fields: [actorId], references: [id])
+  @@unique([plotId, eventKey])
+  @@index([plotId, occurredAt])
+}
+
+model Advisory {
+  id             String         @id @default(cuid())
+  plotId         String
+  generatedAt    DateTime       @default(now())
+  recommendation String
+  recommendedDate DateTime?     @db.Date
+  durationHours  Decimal?       @db.Decimal(8, 2)
+  waterVolumeM3  Decimal?       @db.Decimal(12, 2)
+  confidence     Decimal?       @db.Decimal(5, 2)
+  reasons        Json
+  inputSnapshot  Json
+  outputSnapshot Json
+  ruleVersion    String
+  modelVersion   String?
+  status         AdvisoryStatus @default(GENERATED)
+  farmerAction   String?
+  outcome        Json?
+  updatedAt      DateTime       @updatedAt
+  plot           Plot           @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  fertilizerRecommendations FertilizerRecommendation[]
+  modelPredictions ModelPrediction[]
+  @@index([plotId, generatedAt])
+}
+
+model Alert {
+  id          String   @id @default(cuid())
+  plotId      String
+  type        String
+  severity    String
+  message     String
+  source      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  resolvedAt  DateTime?
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  reads       AlertRead[]
+  @@index([plotId, createdAt])
+}
+
+model AlertRead {
+  alertId  String
+  userId   String
+  readAt   DateTime @default(now())
+  alert    Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([alertId, userId])
+}
+
+model FertilizerRecommendation {
+  id          String   @id @default(cuid())
+  plotId      String
+  advisoryId  String?
+  generatedAt DateTime @default(now())
+  assumptions Json
+  quantities  Json
+  status      String   @default("RECOMMENDED")
+  updatedAt   DateTime @updatedAt
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  advisory    Advisory? @relation(fields: [advisoryId], references: [id])
+  @@index([plotId, generatedAt])
+}
+
+model YieldPrediction {
+  id          String   @id @default(cuid())
+  plotId      String
+  predictedAt DateTime @default(now())
+  predictedTPerHa Decimal
+  lowTPerHa   Decimal
+  highTPerHa  Decimal
+  confidence  Decimal?
+  inputSnapshot Json
+  modelVersion String
+  observedYieldTPerHa Decimal?
+  updatedAt   DateTime @updatedAt
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  @@index([plotId, predictedAt])
+}
+
+model ModelPrediction {
+  id             String    @id @default(cuid())
+  plotId         String
+  advisoryId     String?
+  predictionType String
+  modelVersion   String
+  predictedAt    DateTime  @default(now())
+  confidence     Decimal?  @db.Decimal(5, 2)
+  inputSnapshot  Json
+  outputSnapshot Json
+  plot           Plot      @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  advisory       Advisory? @relation(fields: [advisoryId], references: [id])
+  @@index([plotId, predictionType, predictedAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  resource   String
+  resourceId String?
+  requestId  String?
+  beforeData Json?
+  afterData  Json?
+  createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+  @@index([resource, resourceId, createdAt])
+  @@index([userId, createdAt])
+}

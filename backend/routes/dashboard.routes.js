@@ -2,11 +2,12 @@ const express = require("express");
 const db = require("../db");
 const { requireAuth } = require("../middleware/auth");
 const { buildAdvisory } = require("./advisory.routes");
+const { asyncHandler } = require("../middleware/asyncHandler");
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get("/summary", async (req, res) => {
+router.get("/summary", asyncHandler(async (req, res) => {
   const plots = db.getAll("plots").filter((p) => p.userId === req.user.id);
 
   let totalArea = 0;
@@ -50,6 +51,6 @@ router.get("/summary", async (req, res) => {
     ),
     plots: perPlot,
   });
-});
+}));
 
 module.exports = router;

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const db = require("../db");
 const { generateId } = require("../utils/idgen");
 const { requireAuth } = require("../middleware/auth");
+const { validateBody, registrationSchema, loginSchema } = require("../utils/validation");
 
 const router = express.Router();
 
@@ -20,16 +21,12 @@ function publicUser(user) {
   return rest;
 }
 
-router.post("/register", (req, res) => {
+router.post("/register", validateBody(registrationSchema), (req, res) => {
   const { name, mobile, password, village, taluk, district } = req.body || {};
 
   if (!name || !mobile || !password) {
     return res.status(400).json({ error: "Name, mobile number and password are required." });
   }
-  if (password.length < 6) {
-    return res.status(400).json({ error: "Password must be at least 6 characters." });
-  }
-
   const users = db.getAll("users");
   if (users.some((u) => u.mobile === mobile)) {
     return res.status(409).json({ error: "An account with this mobile number already exists." });
@@ -52,7 +49,7 @@ router.post("/register", (req, res) => {
   res.status(201).json({ token, user: publicUser(user) });
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", validateBody(loginSchema), (req, res) => {
   const { mobile, password } = req.body || {};
   if (!mobile || !password) {
     return res.status(400).json({ error: "Mobile number and password are required." });
