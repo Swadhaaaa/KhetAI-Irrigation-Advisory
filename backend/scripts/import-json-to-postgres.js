@@ -193,6 +193,9 @@ async function importData() {
             }
 
             report.alertMarkersSkipped = (source.alerts || []).length;
+        }, {
+            maxWait: 10000,
+            timeout: 120000,
         });
 
         console.log(JSON.stringify({ status: "ok", report }, null, 2));

@@ -1,10 +1,10 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const db = require("../db");
-const { generateId } = require("../utils/idgen");
 const { requireAuth } = require("../middleware/auth");
 const { validateBody, registrationSchema, loginSchema } = require("../utils/validation");
+const { asyncHandler } = require("../middleware/asyncHandler");
+const { findUserById, findUserByMobile, createUser } = require("../repositories/postgres.repository");
 
 const router = express.Router();
 
@@ -21,54 +21,43 @@ function publicUser(user) {
   return rest;
 }
 
-router.post("/register", validateBody(registrationSchema), (req, res) => {
+router.post("/register", validateBody(registrationSchema), asyncHandler(async (req, res) => {
   const { name, mobile, password, village, taluk, district } = req.body || {};
 
-  if (!name || !mobile || !password) {
-    return res.status(400).json({ error: "Name, mobile number and password are required." });
-  }
-  const users = db.getAll("users");
-  if (users.some((u) => u.mobile === mobile)) {
+  if (await findUserByMobile(mobile)) {
     return res.status(409).json({ error: "An account with this mobile number already exists." });
   }
 
   const passwordHash = bcrypt.hashSync(password, 10);
-  const user = {
-    id: generateId("usr"),
-    name,
-    mobile,
-    village: village || "",
-    taluk: taluk || "",
-    district: district || "",
-    passwordHash,
-    createdAt: new Date().toISOString(),
-  };
-  db.insert("users", user);
+  let user;
+  try {
+    user = await createUser({ name, mobile, village, taluk, district, passwordHash });
+  } catch (error) {
+    if (error.code === "P2002") {
+      return res.status(409).json({ error: "An account with this mobile number already exists." });
+    }
+    throw error;
+  }
 
   const token = signToken(user);
   res.status(201).json({ token, user: publicUser(user) });
-});
+}));
 
-router.post("/login", validateBody(loginSchema), (req, res) => {
+router.post("/login", validateBody(loginSchema), asyncHandler(async (req, res) => {
   const { mobile, password } = req.body || {};
-  if (!mobile || !password) {
-    return res.status(400).json({ error: "Mobile number and password are required." });
-  }
-
-  const users = db.getAll("users");
-  const user = users.find((u) => u.mobile === mobile);
-  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
+  const user = await findUserByMobile(mobile);
+  if (!user || !user.isActive || !bcrypt.compareSync(password, user.passwordHash)) {
     return res.status(401).json({ error: "Invalid mobile number or password." });
   }
 
   const token = signToken(user);
   res.json({ token, user: publicUser(user) });
-});
+}));
 
-router.get("/me", requireAuth, (req, res) => {
-  const user = db.findById("users", req.user.id);
-  if (!user) return res.status(404).json({ error: "User not found." });
+router.get("/me", requireAuth, asyncHandler(async (req, res) => {
+  const user = await findUserById(req.user.id);
+  if (!user || !user.isActive) return res.status(404).json({ error: "User not found." });
   res.json({ user: publicUser(user) });
-});
+}));
 
 module.exports = router;

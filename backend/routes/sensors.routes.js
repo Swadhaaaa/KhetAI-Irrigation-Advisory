@@ -1,19 +1,23 @@
 const express = require("express");
-const db = require("../db");
 const { requireAuth } = require("../middleware/auth");
 const { ensureTodayReading, getHistory } = require("../utils/sensorSim");
+const { findOwnedPlot, plotResponse } = require("../repositories/postgres.repository");
+const { asyncHandler } = require("../middleware/asyncHandler");
+const { parsePagination } = require("../utils/pagination");
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get("/:plotId", (req, res) => {
-  const plot = db.findById("plots", req.params.plotId);
-  if (!plot || plot.userId !== req.user.id) {
+router.get("/:plotId", asyncHandler(async (req, res) => {
+  const record = await findOwnedPlot(req.params.plotId, req.user.id);
+  if (!record) {
     return res.status(404).json({ error: "Plot not found." });
   }
-  const latest = ensureTodayReading(plot);
-  const history = getHistory(plot.id, 14);
+  const plot = plotResponse(record);
+  const latest = await ensureTodayReading(plot);
+  const pagination = parsePagination(req.query, { defaultLimit: 14, maxLimit: 100 });
+  const history = await getHistory(plot.id, pagination.limit, pagination);
   res.json({ latest, history });
-});
+}));
 
 module.exports = router;

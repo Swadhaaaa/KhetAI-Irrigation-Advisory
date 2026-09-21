@@ -39,6 +39,20 @@ const irrigationLogSchema = z.object({
     waterAppliedM3: z.coerce.number().finite().min(0).max(1000000),
 });
 
+const sensorMeasurementSchema = z.object({
+    type: z.enum(["soil_moisture_30", "soil_moisture_60", "soil_temperature", "ambient_temperature", "humidity", "rainfall", "ndvi"]),
+    value: z.coerce.number().finite(),
+    unit: z.enum(["percent", "C", "mm", "unitless"]),
+}).strict();
+
+const sensorIngestionSchema = z.object({
+    eventId: z.string().trim().min(1).max(160).regex(/^[A-Za-z0-9._:-]+$/),
+    measuredAt: z.string().datetime({ offset: true }),
+    measurements: z.array(sensorMeasurementSchema).min(1).max(16),
+    batteryPct: z.coerce.number().finite().min(0).max(100).optional(),
+    firmware: z.string().trim().max(80).optional(),
+}).strict();
+
 function validateBody(schema) {
     return (req, res, next) => {
         const result = schema.safeParse(req.body || {});
@@ -62,5 +76,6 @@ module.exports = {
     plotSchema,
     plotUpdateSchema,
     irrigationLogSchema,
+    sensorIngestionSchema,
     validateBody,
 };

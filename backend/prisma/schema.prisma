@@ -28,6 +28,14 @@ enum AdvisoryStatus {
   EXPIRED
 }
 
+enum SensorHealthStatus {
+  UNKNOWN
+  ONLINE
+  STALE
+  OFFLINE
+  DEGRADED
+}
+
 model User {
   id           String        @id @default(cuid())
   name         String
@@ -137,6 +145,12 @@ model SensorDevice {
   batteryPct  Decimal? @db.Decimal(5, 2)
   connected   Boolean  @default(false)
   calibration Json?
+  credentialHash String?
+  credentialCreatedAt DateTime?
+  credentialRevokedAt DateTime?
+  healthStatus SensorHealthStatus @default(UNKNOWN)
+  lastIngestedAt DateTime?
+  lastErrorCode String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
@@ -159,11 +173,19 @@ model SensorReading {
   ndvi            Decimal?      @db.Decimal(5, 3)
   batteryPct      Decimal?      @db.Decimal(5, 2)
   quality         String        @default("VALID")
+  qualityReason   String?
   provenance      DataProvenance
+  sensorType      String?
+  unit            String?
+  value           Decimal?      @db.Decimal(12, 4)
+  sourceEventId   String?
+  ingestedAt      DateTime      @default(now())
   rawPayload      Json?
   plot            Plot          @relation(fields: [plotId], references: [id], onDelete: Cascade)
   device          SensorDevice? @relation(fields: [deviceId], references: [id])
   @@index([deviceId, measuredAt])
+  @@index([deviceId, sourceEventId])
+  @@index([deviceId, ingestedAt])
   @@index([plotId, measuredAt])
 }
 

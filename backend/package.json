@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "seed": "node utils/seed.js",
     "test": "vitest run",
+    "test:integration": "vitest run tests/postgres.integration.test.mjs",
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

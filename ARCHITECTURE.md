@@ -1,6 +1,6 @@
 # Target Architecture
 
-The current Express application remains the compatibility layer while persistence and ingestion are migrated behind explicit boundaries.
+The Express application is now the compatibility layer over a PostgreSQL repository boundary. JSON remains available only as a migration fixture and is not used by runtime routes.
 
 ```mermaid
 flowchart LR

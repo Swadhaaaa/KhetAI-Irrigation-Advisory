@@ -1,78 +1,86 @@
 const express = require("express");
-const db = require("../db");
-const { generateId } = require("../utils/idgen");
 const { requireAuth } = require("../middleware/auth");
 const { backfillHistory, ensureTodayReading } = require("../utils/sensorSim");
 const { validateBody, plotSchema, plotUpdateSchema } = require("../utils/validation");
+const { asyncHandler } = require("../middleware/asyncHandler");
+const {
+  findOwnedPlot,
+  listOwnedPlots,
+  createPlot,
+  updateOwnedPlot,
+  deleteOwnedPlot,
+  plotResponse,
+  listOwnedPlotsPage,
+} = require("../repositories/postgres.repository");
+const { parsePagination, paginationMeta, hasPaginationQuery } = require("../utils/pagination");
 
 const router = express.Router();
 router.use(requireAuth);
 
-function ownedPlotOr404(req, res) {
-  const plot = db.findById("plots", req.params.id);
-  if (!plot || plot.userId !== req.user.id) {
+async function ownedPlotOr404(req, res) {
+  const plot = await findOwnedPlot(req.params.id, req.user.id);
+  if (!plot) {
     res.status(404).json({ error: "Plot not found." });
     return null;
   }
   return plot;
 }
 
-router.get("/", (req, res) => {
-  const plots = db.getAll("plots").filter((p) => p.userId === req.user.id);
+router.get("/", asyncHandler(async (req, res) => {
+  if (hasPaginationQuery(req.query)) {
+    const pagination = parsePagination(req.query);
+    const result = await listOwnedPlotsPage(req.user.id, pagination);
+    return res.json({ plots: result.plots, pagination: paginationMeta(result.page, result.limit, result.total) });
+  }
+  const plots = await listOwnedPlots(req.user.id, { limit: 100 });
   res.json({ plots });
-});
+}));
 
-router.post("/", validateBody(plotSchema), (req, res) => {
+router.post("/", validateBody(plotSchema), asyncHandler(async (req, res) => {
   const { name, area, crop, variety, plantingDate, soilType, lat, lng } = req.body;
 
-  const plot = {
-    id: generateId("plt"),
-    userId: req.user.id,
+  const plot = await createPlot(req.user.id, {
     name,
     area: Number(area),
-    crop: crop || "Sugarcane",
-    variety: variety || "Co 86032",
+    crop,
+    variety,
     plantingDate,
     soilType,
     lat: lat != null ? Number(lat) : 16.5 + (Math.random() - 0.5) * 0.4,
     lng: lng != null ? Number(lng) : 75.1 + (Math.random() - 0.5) * 0.4,
-    createdAt: new Date().toISOString(),
-  };
-  db.insert("plots", plot);
+  });
 
   // Seed a couple weeks of believable sensor + irrigation history so charts
   // aren't empty on the very first visit.
-  backfillHistory(plot, 14);
-  ensureTodayReading(plot);
+  try {
+    await backfillHistory(plot, 14);
+    await ensureTodayReading(plot);
+  } catch (error) {
+    await deleteOwnedPlot(plot.id, req.user.id);
+    throw error;
+  }
 
   res.status(201).json({ plot });
-});
+}));
 
-router.get("/:id", (req, res) => {
-  const plot = ownedPlotOr404(req, res);
+router.get("/:id", asyncHandler(async (req, res) => {
+  const plot = await ownedPlotOr404(req, res);
   if (!plot) return;
-  res.json({ plot });
-});
+  res.json({ plot: plotResponse(plot) });
+}));
 
-router.put("/:id", validateBody(plotUpdateSchema), (req, res) => {
-  const plot = ownedPlotOr404(req, res);
+router.put("/:id", validateBody(plotUpdateSchema), asyncHandler(async (req, res) => {
+  const plot = await ownedPlotOr404(req, res);
   if (!plot) return;
-  const patch = { ...req.body };
-  delete patch.id;
-  delete patch.userId;
-  const updated = db.update("plots", plot.id, patch);
+  const updated = await updateOwnedPlot(plot.id, req.user.id, req.body);
   res.json({ plot: updated });
-});
+}));
 
-router.delete("/:id", (req, res) => {
-  const plot = ownedPlotOr404(req, res);
+router.delete("/:id", asyncHandler(async (req, res) => {
+  const plot = await ownedPlotOr404(req, res);
   if (!plot) return;
-  db.remove("plots", plot.id);
-  // Cascade-clean related records
-  db.saveAll("sensorReadings", db.getAll("sensorReadings").filter((r) => r.plotId !== plot.id));
-  db.saveAll("irrigationLogs", db.getAll("irrigationLogs").filter((r) => r.plotId !== plot.id));
-  db.saveAll("alerts", db.getAll("alerts").filter((r) => r.plotId !== plot.id));
+  await deleteOwnedPlot(plot.id, req.user.id);
   res.json({ success: true });
-});
+}));
 
 module.exports = router;

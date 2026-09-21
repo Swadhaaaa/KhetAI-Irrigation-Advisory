@@ -1,9 +1,15 @@
 const express = require("express");
 const crypto = require("crypto");
-const db = require("../db");
 const { requireAuth } = require("../middleware/auth");
 const { buildAdvisory } = require("./advisory.routes");
 const { asyncHandler } = require("../middleware/asyncHandler");
+const {
+  listOwnedPlots,
+  upsertAlert,
+  upsertAlerts,
+  readAlertIds,
+  markAlertRead,
+} = require("../repositories/postgres.repository");
 
 const router = express.Router();
 router.use(requireAuth);
@@ -68,15 +74,14 @@ async function generateAlertsForPlot(plot) {
 }
 
 router.get("/", asyncHandler(async (req, res) => {
-  const plots = db.getAll("plots").filter((p) => p.userId === req.user.id);
-  const readIds = new Set(
-    db.getAll("alerts").filter((a) => a.userId === req.user.id).map((a) => a.id)
-  );
+  const plots = await listOwnedPlots(req.user.id);
+  const readIds = await readAlertIds(req.user.id);
 
   const all = [];
   for (const plot of plots) {
     const plotAlerts = await generateAlertsForPlot(plot);
-    plotAlerts.forEach((a) => all.push({ ...a, read: readIds.has(a.id) }));
+    await upsertAlerts(plotAlerts);
+    plotAlerts.forEach((alert) => all.push({ ...alert, read: readIds.has(alert.id) }));
   }
 
   all.sort((a, b) => {
@@ -87,12 +92,10 @@ router.get("/", asyncHandler(async (req, res) => {
   res.json({ alerts: all });
 }));
 
-router.post("/:alertId/read", (req, res) => {
-  const existing = db.getAll("alerts");
-  if (!existing.find((a) => a.id === req.params.alertId && a.userId === req.user.id)) {
-    db.insert("alerts", { id: req.params.alertId, userId: req.user.id, readAt: new Date().toISOString() });
-  }
+router.post("/:alertId/read", asyncHandler(async (req, res) => {
+  const marked = await markAlertRead(req.params.alertId, req.user.id);
+  if (!marked) return res.status(404).json({ error: "Alert not found." });
   res.json({ success: true });
-});
+}));
 
 module.exports = router;

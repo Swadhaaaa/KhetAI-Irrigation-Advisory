@@ -1,14 +1,14 @@
 const express = require("express");
-const db = require("../db");
 const { requireAuth } = require("../middleware/auth");
 const { buildAdvisory } = require("./advisory.routes");
 const { asyncHandler } = require("../middleware/asyncHandler");
+const { listOwnedPlots, listOwnedIrrigationEvents } = require("../repositories/postgres.repository");
 
 const router = express.Router();
 router.use(requireAuth);
 
 router.get("/summary", asyncHandler(async (req, res) => {
-  const plots = db.getAll("plots").filter((p) => p.userId === req.user.id);
+  const plots = await listOwnedPlots(req.user.id);
 
   let totalArea = 0;
   let totalWaterM3 = 0;
@@ -31,14 +31,8 @@ router.get("/summary", asyncHandler(async (req, res) => {
     });
   }
 
-  const irrigationLogs = db
-    .getAll("irrigationLogs")
-    .filter((l) => plots.some((p) => p.id === l.plotId));
-  const last30 = irrigationLogs.filter((l) => {
-    const d = new Date(l.date);
-    const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
-    return diff <= 30;
-  });
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const last30 = await listOwnedIrrigationEvents(req.user.id, since);
 
   res.json({
     plotCount: plots.length,
