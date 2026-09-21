@@ -1743,3 +1743,185 @@ table.data-table tr:last-child td {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* =========================================================================
+   PHASE 6C — IRRIGATION INTELLIGENCE STYLING
+   ========================================================================= */
+
+.decision-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.decision-badge.IRRIGATE_NOW {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+}
+
+.decision-badge.IRRIGATE_SOON {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+
+.decision-badge.MONITOR {
+  background: #E0F2FE;
+  color: #075985;
+  border: 1px solid #7DD3FC;
+}
+
+.decision-badge.NO_IRRIGATION {
+  background: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #6EE7B7;
+}
+
+.decision-badge.INSUFFICIENT_DATA {
+  background: #F3F4F6;
+  color: #374151;
+  border: 1px solid #D1D5DB;
+}
+
+.trust-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(31, 77, 61, 0.08);
+  color: var(--cane-green-dark);
+  border: 1px solid rgba(31, 77, 61, 0.16);
+}
+
+.trust-badge.weather-live {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border-color: #BFDBFE;
+}
+
+.trust-badge.weather-cached {
+  background: #F5F3FF;
+  color: #6D28D9;
+  border-color: #DDD6FE;
+}
+
+.trust-badge.weather-fallback {
+  background: #FFFBEB;
+  color: #B45309;
+  border-color: #FDE68A;
+}
+
+.explanation-list {
+  margin: 12px 0 0 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.explanation-list li {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-main);
+}
+
+.scenario-panel {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.scenario-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-scenario {
+  padding: 10px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--sand-light);
+  color: var(--cane-green-dark);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.btn-scenario:hover {
+  background: var(--jaggery-gold-light);
+  border-color: var(--jaggery-gold);
+}
+
+.btn-scenario.active {
+  background: var(--cane-green-dark);
+  color: var(--white);
+  border-color: var(--cane-green-dark);
+}
+
+.technical-panel-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--sand-light);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--cane-green-dark);
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.technical-panel-content {
+  display: none;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.technical-panel-content.open {
+  display: block;
+}
+
+.warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}

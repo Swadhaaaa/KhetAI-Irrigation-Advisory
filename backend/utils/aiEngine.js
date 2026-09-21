@@ -61,111 +61,45 @@ function cropAgeInMonths(plantingDateISO) {
 
 /**
  * Core irrigation advisory calculation.
- * @param {object} plot - { plantingDate, soilType, area }
- * @param {object} latestSensor - { soilMoisturePct, soilTemp }
- * @param {object} forecast - { days: [{ date, tempMax, tempMin, humidity, rainProbability, rainMm }] }
+ * Delegated to feature builder and irrigation intelligence engine.
  */
 function computeIrrigationAdvisory(plot, latestSensor, forecast) {
-  const ageMonths = cropAgeInMonths(plot.plantingDate);
-  const kc = kcForCropAgeMonths(ageMonths);
-  const stage = stageNameForCropAgeMonths(ageMonths);
-  const soil = soilProfile(plot.soilType);
+  const { buildIrrigationFeatures } = require("./irrigationFeatures");
+  const { computeIrrigationIntelligence } = require("./irrigationEngine");
 
-  const today = forecast.days[0];
-  const et0 = estimateET0({
-    tempMaxC: today.tempMax,
-    tempMinC: today.tempMin,
-    humidityPct: today.humidity,
-  });
-
-  // Crop water requirement (ETc, mm/day)
-  const etc = Number((et0 * kc).toFixed(2));
-
-  // Available soil moisture window
-  const currentMoisture = latestSensor.soilMoisturePct;
-  const range = soil.fieldCapacity - soil.wiltingPoint;
-  const depletionPct = Math.max(
-    0,
-    Math.min(1, (soil.fieldCapacity - currentMoisture) / range)
-  );
-
-  // Management Allowed Depletion (MAD) - sugarcane tolerates ~50% depletion
-  const mad = 0.5;
-  const daysOfBufferLeft = Math.max(
-    0,
-    ((mad - depletionPct) * range) / Math.max(etc, 0.5)
-  );
-
-  // Look ahead through the forecast for meaningful rain that would offset irrigation
-  let cumulativeForecastRain = 0;
-  let significantRainInDays = null;
-  forecast.days.slice(0, 3).forEach((d, idx) => {
-    cumulativeForecastRain += d.rainMm;
-    if (significantRainInDays === null && d.rainProbability >= 60 && d.rainMm >= 8) {
-      significantRainInDays = idx;
-    }
-  });
-
-  let nextIrrigationInDays = Math.round(daysOfBufferLeft);
-  let rainfallNote = null;
-  if (significantRainInDays !== null && significantRainInDays <= nextIrrigationInDays + 1) {
-    rainfallNote = `Rain expected in ${significantRainInDays === 0 ? "the next 24 hours" : significantRainInDays + " day(s)"} — irrigation can be delayed to avoid waterlogging.`;
-    nextIrrigationInDays = Math.max(nextIrrigationInDays, significantRainInDays + 1);
+  const features = buildIrrigationFeatures(plot, latestSensor, forecast);
+  const result = computeIrrigationIntelligence(features);
+  if (result.status === "INSUFFICIENT_DATA") {
+    const ageMonths = cropAgeInMonths(plot?.plantingDate);
+    const kc = kcForCropAgeMonths(ageMonths);
+    const stage = stageNameForCropAgeMonths(ageMonths);
+    const soil = soilProfile(plot?.soilType);
+    const today = forecast?.days?.[0] || {};
+    const et0 = today.et0 ?? 4.5;
+    const etc = Number((et0 * kc).toFixed(2));
+    const currentMoisture = latestSensor?.soilMoisturePct ?? latestSensor?.soilMoisture30 ?? 25;
+    return {
+      cropStage: stage,
+      cropAgeMonths: Number(ageMonths.toFixed(1)),
+      kc,
+      et0MmPerDay: et0,
+      cropWaterRequirementMmPerDay: etc,
+      soilMoisturePct: currentMoisture,
+      fieldCapacityPct: soil.fieldCapacity,
+      depletionPct: 50,
+      nextIrrigationDate: new Date().toISOString().slice(0, 10),
+      nextIrrigationInDays: 0,
+      irrigationDurationHours: 1.5,
+      netIrrigationRequirementMm: 10,
+      waterVolumeM3: 40,
+      waterStressProbability: 50,
+      waterStressLevel: "Medium",
+      yieldLossRiskPct: 0,
+      rainfallNote: null,
+      recommendationSummary: `Data quality gate returned INSUFFICIENT_DATA.`,
+    };
   }
-
-  const nextIrrigationDate = new Date();
-  nextIrrigationDate.setDate(nextIrrigationDate.getDate() + nextIrrigationInDays);
-
-  // Net irrigation requirement (mm) to refill root zone back to field capacity
-  const netRequirementMm = Number(
-    Math.max(0, (soil.fieldCapacity - currentMoisture) * 0.9).toFixed(1)
-  );
-
-  // Drip/furrow application rate assumption drawn from soil infiltration rate
-  const applicationRateMmPerHr = soil.infiltrationRate;
-  const durationHours = Number(
-    Math.max(0.5, netRequirementMm / applicationRateMmPerHr).toFixed(1)
-  );
-
-  // Water stress probability: combination of depletion level & days overdue
-  let waterStressProbability = Math.round(depletionPct * 100);
-  let waterStressLevel = "Low";
-  if (waterStressProbability >= 70) waterStressLevel = "High";
-  else if (waterStressProbability >= 40) waterStressLevel = "Medium";
-
-  // Yield loss risk if the recommended irrigation is delayed further
-  const yieldLossRiskPct = Number(
-    Math.min(18, Math.max(0, (waterStressProbability - 50) * 0.35)).toFixed(1)
-  );
-
-  const litersRequired = Math.round(netRequirementMm * plot.area * 10); // 1mm over 1 acre-equivalent(approx 4047 m2)*... simplified: mm * ha(area in acre*0.4047)*10000/1000
-  const waterVolumeM3 = Number(
-    ((netRequirementMm / 1000) * plot.area * 4046.86).toFixed(1)
-  );
-
-  return {
-    cropStage: stage,
-    cropAgeMonths: Number(ageMonths.toFixed(1)),
-    kc,
-    et0MmPerDay: et0,
-    cropWaterRequirementMmPerDay: etc,
-    soilMoisturePct: currentMoisture,
-    fieldCapacityPct: soil.fieldCapacity,
-    depletionPct: Math.round(depletionPct * 100),
-    nextIrrigationDate: nextIrrigationDate.toISOString().slice(0, 10),
-    nextIrrigationInDays,
-    irrigationDurationHours: durationHours,
-    netIrrigationRequirementMm: netRequirementMm,
-    waterVolumeM3,
-    waterStressProbability,
-    waterStressLevel,
-    yieldLossRiskPct,
-    rainfallNote,
-    recommendationSummary:
-      nextIrrigationInDays <= 0
-        ? `Irrigate today for ${durationHours} hour(s). Soil moisture has dropped to ${currentMoisture}% against a comfortable ${soil.fieldCapacity}%.`
-        : `Irrigate on ${nextIrrigationDate.toISOString().slice(0, 10)} for approximately ${durationHours} hour(s).`,
-  };
+  return result.advisory;
 }
 
 /** Fertigation recommendation per acre by crop growth stage (NPK guideline values). */
@@ -194,6 +128,7 @@ function computeFertigationPlan(plot, advisory) {
   return {
     stage: plan.stage,
     note: plan.note,
+    methodology: "Agronomic guideline dosage per growth stage",
     perAcre: { ureaKg: plan.Urea, dapKg: plan.DAP, mopKg: plan.MOP },
     totalForPlot: scaled,
     applyWithIrrigationOn: advisory.nextIrrigationDate,
@@ -215,10 +150,12 @@ function computeYieldPrediction(plot, advisory, historicalStressAvg) {
     predictedYieldTPerHa: Number(predicted.toFixed(1)),
     rangeLowTPerHa: low,
     rangeHighTPerHa: high,
+    engineLabel: "Agronomic stress penalty calculation",
+    yieldType: "Estimated yield",
     confidenceNote:
       historicalStressAvg > 45
-        ? "Prediction range is wider due to elevated recent water stress."
-        : "Prediction based on stable moisture history.",
+        ? "Estimation range is wider due to elevated recent water stress."
+        : "Estimated based on stable moisture history.",
   };
 }
 

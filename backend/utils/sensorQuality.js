@@ -11,16 +11,22 @@ const RANGES = {
 function classifyMeasurement(measurement) {
     const rule = RANGES[measurement.type];
     if (!rule || measurement.unit !== rule.unit) {
-        const error = new Error("Unsupported sensor type or unit.");
+        const error = new Error("Unsupported sensor type or unit mismatch.");
         error.code = "INVALID_SENSOR_MEASUREMENT";
         throw error;
     }
     if (measurement.value < rule.min || measurement.value > rule.max) {
-        const error = new Error(`Sensor value for ${measurement.type} is outside the accepted range.`);
-        error.code = "INVALID_SENSOR_MEASUREMENT";
-        throw error;
+        return {
+            field: rule.field,
+            quality: "INVALID",
+            qualityReason: `out_of_range_${measurement.type}`,
+        };
     }
-    return rule;
+    return {
+        field: rule.field,
+        quality: "VALID",
+        qualityReason: null,
+    };
 }
 
 function classifyTimestamp(measuredAt) {
@@ -36,9 +42,30 @@ function classifyTimestamp(measuredAt) {
         error.code = "INVALID_SENSOR_TIMESTAMP";
         throw error;
     }
-    return timestamp < now - 30 * 24 * 60 * 60 * 1000
-        ? { quality: "SUSPECT", qualityReason: "measurement_older_than_30_days" }
-        : { quality: "VALID", qualityReason: null };
+    if (timestamp < now - 365 * 24 * 60 * 60 * 1000) {
+        return { quality: "INVALID", qualityReason: "measurement_older_than_1_year" };
+    }
+    if (timestamp < now - 30 * 24 * 60 * 60 * 1000) {
+        return { quality: "SUSPECT", qualityReason: "measurement_older_than_30_days" };
+    }
+    return { quality: "VALID", qualityReason: null };
 }
 
-module.exports = { RANGES, classifyMeasurement, classifyTimestamp };
+function combineQuality(timestampQuality, measurementQuality) {
+    if (timestampQuality.quality === "INVALID" || measurementQuality.quality === "INVALID") {
+        return {
+            quality: "INVALID",
+            qualityReason: measurementQuality.qualityReason || timestampQuality.qualityReason,
+        };
+    }
+    if (timestampQuality.quality === "SUSPECT" || measurementQuality.quality === "SUSPECT") {
+        return {
+            quality: "SUSPECT",
+            qualityReason: timestampQuality.qualityReason || measurementQuality.qualityReason,
+        };
+    }
+    return { quality: "VALID", qualityReason: null };
+}
+
+module.exports = { RANGES, classifyMeasurement, classifyTimestamp, combineQuality };
+

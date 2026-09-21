@@ -198,16 +198,23 @@
 
         <!-- IRRIGATION ADVISORY -->
         <section class="view" id="view-advisory">
+          <div id="advisory-warning-banner" class="warning-banner" style="display:none;"></div>
+
           <div class="advisory-hero" id="advisory-hero-full">
             <div>
-              <p class="eyebrow"><span data-i18n="advisory.recommendation">AI Irrigation Recommendation</span> · <span
-                  id="advisory-plot-name">—</span></p>
+              <div id="advisory-decision-badge" class="decision-badge MONITOR">MONITOR</div>
+              <p class="eyebrow">Irrigation Intelligence Advisory · <span id="advisory-plot-name">—</span></p>
               <h3 id="advisory-farmer-text">Loading advisory…</h3>
               <div class="meta">
-                <div><span data-i18n="labels.cropStage">Crop stage</span><b id="advisory-stage">—</b></div>
-                <div><span data-i18n="labels.waterRequirement">Water requirement</span><b id="advisory-etc">—</b></div>
-                <div><span data-i18n="labels.volumeNeeded">Volume needed</span><b id="advisory-volume">—</b></div>
-                <div><span data-i18n="labels.yieldLossRisk">Yield-loss risk</span><b id="advisory-riskloss">—</b></div>
+                <div><span>1. Should I irrigate?</span><b id="advisory-should">—</b></div>
+                <div><span>2. When?</span><b id="advisory-when">—</b></div>
+                <div><span>3. How much water?</span><b id="advisory-volume">—</b></div>
+                <div><span>4. For how long?</span><b id="advisory-duration">—</b></div>
+              </div>
+              <div class="trust-bar" id="advisory-trust-bar">
+                <span class="trust-badge">Sensor data: Simulated demo data</span>
+                <span class="trust-badge weather-live">Weather: Live weather forecast</span>
+                <span class="trust-badge">Decision engine: Agronomic calculation</span>
               </div>
               <div class="lang-strip" id="advisory-lang-strip"></div>
             </div>
@@ -216,21 +223,31 @@
             </div>
           </div>
 
-          <div style="height:24px"></div>
+          <div style="height:20px"></div>
+
+          <!-- WHY THIS RECOMMENDATION -->
+          <div class="card" id="advisory-why-card">
+            <h3 style="font-size:16px; color:var(--cane-green-dark);">WHY THIS RECOMMENDATION?</h3>
+            <p class="card-sub">Derived directly from FAO-56 crop physics and localized telemetry</p>
+            <ul class="explanation-list" id="advisory-explanation-list">
+              <li>Loading explanation reasoning…</li>
+            </ul>
+          </div>
+
+          <div style="height:20px"></div>
 
           <div class="grid grid-2-even">
             <div class="card">
-              <h3 data-i18n="advisory.modelBreakdown">Model breakdown</h3>
-              <p class="card-sub" data-i18n="advisory.calculated">How this recommendation was calculated</p>
+              <h3>Model breakdown</h3>
+              <p class="card-sub">How this recommendation was calculated</p>
               <div style="height:12px"></div>
               <table class="data-table" id="advisory-breakdown-table">
                 <tbody></tbody>
               </table>
             </div>
             <div class="card">
-              <h3 data-i18n="advisory.logEvent">Log an irrigation event</h3>
-              <p class="card-sub" data-i18n="advisory.confirmPump">Confirm a pump run so future advisories account for
-                it</p>
+              <h3>Log an irrigation event</h3>
+              <p class="card-sub">Confirm a pump run so future advisories account for it</p>
               <form id="log-irrigation-form" style="margin-top:14px;">
                 <div class="field-row">
                   <div class="field"><label>Duration (hours)</label><input type="number" step="0.1" min="0"
@@ -253,6 +270,44 @@
                 <tbody></tbody>
               </table>
             </div>
+          </div>
+
+          <!-- DEMO / SCENARIO SIMULATOR -->
+          <div class="scenario-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+              <div>
+                <h3 style="font-size:15px; color:var(--cane-green-dark); margin:0;">SIMULATED SCENARIO DEMO CONTROL</h3>
+                <p class="card-sub" style="margin-top:2px;">Simulate field conditions and execute real backend decision logic</p>
+              </div>
+              <span class="trust-badge" style="background:#FEF3C7; color:#92400E; border-color:#FCD34D;">DEMO CONTROL</span>
+            </div>
+            <div class="scenario-buttons">
+              <button type="button" class="btn-scenario active" data-scenario="SCENARIO_1_NORMAL">Normal Moisture (26%)</button>
+              <button type="button" class="btn-scenario" data-scenario="SCENARIO_2_LOW_MOISTURE">Low Moisture (14% - Irrigate)</button>
+              <button type="button" class="btn-scenario" data-scenario="SCENARIO_3_RAIN_EXPECTED">Rain Forecast (25mm)</button>
+              <button type="button" class="btn-scenario" data-scenario="SCENARIO_4_STALE_SENSOR">Stale / Invalid Sensor</button>
+            </div>
+          </div>
+
+          <!-- TECHNICAL DETAILS PANEL -->
+          <button type="button" class="technical-panel-toggle" id="technical-panel-toggle">
+            <span>View Technical Details &amp; Provenance</span>
+            <span id="technical-panel-arrow">▼</span>
+          </button>
+          <div class="technical-panel-content" id="advisory-technical-panel">
+            <table class="data-table">
+              <tbody>
+                <tr><th>Engine Model Type</th><td id="tech-model-type">AGRONOMIC_BASELINE</td></tr>
+                <tr><th>Feature Version</th><td id="tech-feature-version">v1.0-fao56</td></tr>
+                <tr><th>Weather Provenance</th><td id="tech-weather-provenance">LIVE_API</td></tr>
+                <tr><th>Sensor Provenance</th><td id="tech-sensor-provenance">SIMULATED</td></tr>
+                <tr><th>Data Quality Status</th><td id="tech-data-quality">VALID</td></tr>
+                <tr><th>Calculation Timestamp</th><td id="tech-timestamp">—</td></tr>
+                <tr><th>ML Layer Status</th><td><span class="badge" style="background:#FEE2E2; color:#991B1B; font-weight:600;" id="tech-ml-status">INSUFFICIENT_HISTORICAL_DATA</span></td></tr>
+                <tr><th>ML Model Version</th><td id="tech-ml-version">experimental-v1</td></tr>
+                <tr><th>ML Training Requirement</th><td id="tech-ml-reason" style="font-size:12px; color:var(--text-muted);">Requires physical IoT hardware dataset (min 30 records). Simulator telemetry cannot be used for ML model training.</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
 

@@ -96,6 +96,7 @@ async function init() {
   bindPlotModal();
   bindForms();
   bindSettings();
+  bindAdvisoryControls();
 
   await loadView("overview");
 }
@@ -361,19 +362,102 @@ async function deletePlotConfirm(id) {
 // ---------------------------------------------------------------------------
 async function renderAdvisory() {
   const plot = currentPlot();
-  const [{ advisory, farmerMessage }, { logs }, langs] = await Promise.all([
+  const [advisoryRes, { logs }, langs] = await Promise.all([
     api.getAdvisory(plot.id, state.lang),
     api.getIrrigationHistory(plot.id),
     api.getAdvisoryLanguages(),
   ]);
 
+  const { advisory, farmerMessage, decisionBadge, trustIndicators, technicalDetails, explanationBullets } = advisoryRes;
+
+  // Decision badge
+  const badgeEl = document.getElementById("advisory-decision-badge");
+  if (badgeEl && decisionBadge) {
+    badgeEl.textContent = decisionBadge.label || decisionBadge.code;
+    badgeEl.className = `decision-badge ${decisionBadge.code}`;
+  }
+
+  // Warning banner
+  const warnBanner = document.getElementById("advisory-warning-banner");
+  if (warnBanner) {
+    const warnings = [];
+    if (technicalDetails && technicalDetails.dataQualityStatus !== "VALID") {
+      warnings.push(`Data Quality Notice: Telemetry data quality is flagged as ${technicalDetails.dataQualityStatus}. Recommendations may be restricted or default to fallback monitoring.`);
+    }
+    if (decisionBadge && decisionBadge.code === "INSUFFICIENT_DATA") {
+      warnings.push(`Insufficient Data: Unable to calculate advisory safely due to missing or suspect sensor telemetry.`);
+    }
+    if (warnings.length > 0) {
+      warnBanner.style.display = "block";
+      warnBanner.innerHTML = warnings.map((w) => `<div><strong>Warning:</strong> ${w}</div>`).join("");
+    } else {
+      warnBanner.style.display = "none";
+    }
+  }
+
   document.getElementById("advisory-plot-name").textContent = plot.name;
   document.getElementById("advisory-farmer-text").textContent = farmerMessage;
-  document.getElementById("advisory-stage").textContent = advisory.cropStage;
-  document.getElementById("advisory-etc").textContent = `${advisory.cropWaterRequirementMmPerDay} mm/day`;
-  document.getElementById("advisory-volume").textContent = `${advisory.waterVolumeM3} m³`;
-  document.getElementById("advisory-riskloss").textContent = `${advisory.yieldLossRiskPct}%`;
+
+  const shouldEl = document.getElementById("advisory-should");
+  if (shouldEl) shouldEl.textContent = decisionBadge ? (decisionBadge.label || decisionBadge.code) : "MONITOR";
+
+  const whenEl = document.getElementById("advisory-when");
+  if (whenEl) {
+    if (advisory.nextIrrigationInDays <= 0) whenEl.textContent = "Today / Immediately";
+    else if (advisory.nextIrrigationInDays === 1) whenEl.textContent = "Tomorrow";
+    else whenEl.textContent = `In ${advisory.nextIrrigationInDays} days (${advisory.nextIrrigationDate})`;
+  }
+
+  const volEl = document.getElementById("advisory-volume");
+  if (volEl) volEl.textContent = `${advisory.waterVolumeM3} m³`;
+
+  const durEl = document.getElementById("advisory-duration");
+  if (durEl) durEl.textContent = `${advisory.recommendedDurationHours} hours`;
+
+  if (document.getElementById("advisory-stage")) document.getElementById("advisory-stage").textContent = advisory.cropStage;
+  if (document.getElementById("advisory-etc")) document.getElementById("advisory-etc").textContent = `${advisory.cropWaterRequirementMmPerDay} mm/day`;
+  if (document.getElementById("advisory-riskloss")) document.getElementById("advisory-riskloss").textContent = `${advisory.yieldLossRiskPct}%`;
+
   document.getElementById("advisory-gauge").innerHTML = renderGauge({ pct: advisory.soilMoisturePct, size: 150, stroke: 14 });
+
+  // Trust indicators bar
+  const trustBar = document.getElementById("advisory-trust-bar");
+  if (trustBar && trustIndicators) {
+    const isLiveWeather = trustIndicators.weatherProvenance === "LIVE_API";
+    trustBar.innerHTML = `
+      <span class="trust-badge">Sensor data: ${trustIndicators.sensorProvenance === "SIMULATED" ? "Simulated demo data" : "Physical sensor"}</span>
+      <span class="trust-badge ${isLiveWeather ? "weather-live" : ""}">Weather: ${isLiveWeather ? "Live weather forecast" : "Cached / Fallback weather"}</span>
+      <span class="trust-badge">Decision engine: ${trustIndicators.engineLabel || "Agronomic calculation"}</span>
+    `;
+  }
+
+  // Explanation bullets
+  const expList = document.getElementById("advisory-explanation-list");
+  if (expList && explanationBullets && explanationBullets.length > 0) {
+    expList.innerHTML = explanationBullets.map((b) => `<li>${b}</li>`).join("");
+  }
+
+  // Technical details panel
+  if (technicalDetails) {
+    if (document.getElementById("tech-model-type")) document.getElementById("tech-model-type").textContent = technicalDetails.modelType || "AGRONOMIC_BASELINE";
+    if (document.getElementById("tech-feature-version")) document.getElementById("tech-feature-version").textContent = technicalDetails.featureVersion || "v1.0-fao56";
+    if (document.getElementById("tech-weather-provenance")) document.getElementById("tech-weather-provenance").textContent = technicalDetails.weatherProvenance || "LIVE_API";
+    if (document.getElementById("tech-sensor-provenance")) document.getElementById("tech-sensor-provenance").textContent = technicalDetails.sensorProvenance || "SIMULATED";
+    if (document.getElementById("tech-data-quality")) document.getElementById("tech-data-quality").textContent = technicalDetails.dataQualityStatus || "VALID";
+    if (document.getElementById("tech-timestamp")) document.getElementById("tech-timestamp").textContent = technicalDetails.calculatedAt ? new Date(technicalDetails.calculatedAt).toLocaleString() : "—";
+  }
+
+  // Populate ML status dynamically
+  try {
+    const mlRes = await api.getMlStatus();
+    if (mlRes && mlRes.data) {
+      if (document.getElementById("tech-ml-status")) document.getElementById("tech-ml-status").textContent = mlRes.data.status || "INSUFFICIENT_HISTORICAL_DATA";
+      if (document.getElementById("tech-ml-version")) document.getElementById("tech-ml-version").textContent = mlRes.data.modelVersion || "experimental-v1";
+      if (document.getElementById("tech-ml-reason")) document.getElementById("tech-ml-reason").textContent = mlRes.data.reason || "Requires physical IoT hardware dataset.";
+    }
+  } catch (e) {
+    /* fallback to static defaults */
+  }
 
   document.getElementById("advisory-lang-strip").innerHTML = langs.languages
     .map((l) => `<span class="lang-chip ${l.code === state.lang ? "active" : ""}" onclick="setLangAndReload('${l.code}')">${l.label}</span>`)
@@ -396,6 +480,38 @@ async function renderAdvisory() {
     ? logs.slice(0, 8).map((l) => `<tr><td>${l.date}</td><td>${l.durationHours} hrs</td><td>${l.waterAppliedM3}</td></tr>`).join("")
     : `<tr><td colspan="3" style="color:var(--ink-soft)">No irrigation logged yet.</td></tr>`;
 }
+
+function bindAdvisoryControls() {
+  document.querySelectorAll(".btn-scenario").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const scenario = btn.dataset.scenario;
+      const plot = currentPlot();
+      if (!plot) return;
+
+      document.querySelectorAll(".btn-scenario").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      try {
+        const res = await api.triggerScenario(plot.id, scenario);
+        showToast(`Scenario triggered: ${res.scenarioLabel}`, "success");
+        await renderAdvisory();
+      } catch (err) {
+        showToast(`Failed to trigger scenario: ${err.message}`, "error");
+      }
+    });
+  });
+
+  const toggleBtn = document.getElementById("technical-panel-toggle");
+  const panel = document.getElementById("advisory-technical-panel");
+  const arrow = document.getElementById("technical-panel-arrow");
+  if (toggleBtn && panel) {
+    toggleBtn.addEventListener("click", () => {
+      panel.classList.toggle("open");
+      if (arrow) arrow.textContent = panel.classList.contains("open") ? "▲" : "▼";
+    });
+  }
+}
+
 
 function setLangAndReload(code) {
   state.lang = UI_TRANSLATIONS[code] ? code : "en";
