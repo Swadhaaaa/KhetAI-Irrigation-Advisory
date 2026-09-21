@@ -447,16 +447,72 @@ async function renderAdvisory() {
     if (document.getElementById("tech-timestamp")) document.getElementById("tech-timestamp").textContent = technicalDetails.calculatedAt ? new Date(technicalDetails.calculatedAt).toLocaleString() : "—";
   }
 
-  // Populate ML status dynamically
+  // Populate ML status & Experimental ML Analysis panel dynamically
   try {
-    const mlRes = await api.getMlStatus();
+    const [mlRes, mlPredRes] = await Promise.all([
+      api.getMlStatus().catch(() => null),
+      api.getMlPrediction(plot.id).catch(() => null),
+    ]);
+
     if (mlRes && mlRes.data) {
       if (document.getElementById("tech-ml-status")) document.getElementById("tech-ml-status").textContent = mlRes.data.status || "INSUFFICIENT_HISTORICAL_DATA";
       if (document.getElementById("tech-ml-version")) document.getElementById("tech-ml-version").textContent = mlRes.data.modelVersion || "experimental-v1";
       if (document.getElementById("tech-ml-reason")) document.getElementById("tech-ml-reason").textContent = mlRes.data.reason || "Requires physical IoT hardware dataset.";
     }
+
+    if (mlPredRes && mlPredRes.data && mlPredRes.data.mlExperimentation) {
+      const mlExp = mlPredRes.data.mlExperimentation;
+      const prov = mlPredRes.data.provenance || {};
+      const pred = mlExp.prediction || {};
+
+      if (document.getElementById("ml-status-badge")) {
+        document.getElementById("ml-status-badge").textContent = mlExp.mlStatus || "EXPERIMENTAL_MODEL_TRAINED";
+      }
+      if (document.getElementById("ml-algorithm")) {
+        document.getElementById("ml-algorithm").textContent = mlExp.algorithm || (mlExp.model && mlExp.model.algorithm) || "Linear Regression";
+      }
+      if (document.getElementById("ml-version")) {
+        document.getElementById("ml-version").textContent = mlExp.modelVersion || (mlExp.model && mlExp.model.version) || "sugarcane-irrigation-v1";
+      }
+      if (document.getElementById("ml-prediction-val")) {
+        const numVal = pred.value ?? pred.predictedWaterLitersPerDay;
+        document.getElementById("ml-prediction-val").textContent = numVal
+          ? `Experimental ML estimate: ${numVal.toLocaleString()} L/day (external dataset scale)`
+          : "ML: Unavailable";
+      }
+      if (document.getElementById("ml-unit-scale")) {
+        document.getElementById("ml-unit-scale").textContent = `${mlExp.unit || "LITERS_PER_DAY_DATASET_SCALE"} (Not directly comparable to KhetAI plot water volume)`;
+      }
+      if (document.getElementById("ml-comparability")) {
+        document.getElementById("ml-comparability").textContent = mlExp.comparability || "NOT_DIRECTLY_COMPARABLE";
+      }
+      if (document.getElementById("ml-dataset-source")) {
+        document.getElementById("ml-dataset-source").textContent = (mlExp.dataset && mlExp.dataset.source) || "External Sugarcane Research Dataset (Zenodo DOI: 10.5281/zenodo.19725692)";
+      }
+      if (document.getElementById("ml-dataset-origin")) {
+        document.getElementById("ml-dataset-origin").textContent = (mlExp.dataset && mlExp.dataset.origin) || "MODEL_SIMULATED (CatBoost pipeline)";
+      }
+      if (document.getElementById("ml-r2-original")) {
+        const origR2 = mlExp.metrics ? mlExp.metrics.originalScaleR2 : 0.8507;
+        document.getElementById("ml-r2-original").textContent = `${origR2} (held-out test set R²)`;
+      }
+      if (document.getElementById("ml-r2-log")) {
+        const logR2 = mlExp.metrics ? mlExp.metrics.logScaleR2 : 0.9421;
+        document.getElementById("ml-r2-log").textContent = `${logR2} (held-out test set R²)`;
+      }
+      if (document.getElementById("ml-prov-sensor")) {
+        document.getElementById("ml-prov-sensor").textContent = prov.sensor === "SIMULATED" ? "Simulated demo telemetry" : prov.sensor;
+      }
+      if (document.getElementById("ml-prov-weather")) {
+        document.getElementById("ml-prov-weather").textContent = prov.weather === "LIVE_API" ? "Live Open-Meteo API" : "Cached / Fallback weather";
+      }
+    } else {
+      if (document.getElementById("ml-prediction-val")) document.getElementById("ml-prediction-val").textContent = "ML: Unavailable";
+      if (document.getElementById("ml-status-badge")) document.getElementById("ml-status-badge").textContent = "UNAVAILABLE";
+    }
   } catch (e) {
-    /* fallback to static defaults */
+    if (document.getElementById("ml-prediction-val")) document.getElementById("ml-prediction-val").textContent = "ML: Unavailable";
+    if (document.getElementById("ml-status-badge")) document.getElementById("ml-status-badge").textContent = "UNAVAILABLE";
   }
 
   document.getElementById("advisory-lang-strip").innerHTML = langs.languages

@@ -76,7 +76,7 @@ describe("Phase 9A — External Sugarcane Dataset Audit & ML Pipeline", () => {
     expect(res.body.data.validityCheck.mlRawPredictions.invalidCount).toBe(0);
   });
 
-  it("7. POST /api/ml/predict API endpoint returns hybrid baseline + ML side-by-side output", async () => {
+  it("7. POST /api/ml/predict API endpoint returns hybrid baseline + ML side-by-side output with unit, comparability & disclaimer", async () => {
     const validTestToken = jwt.sign(
       { id: "usr_test", name: "Test Farmer", mobile: "9999999999" },
       process.env.JWT_SECRET
@@ -89,7 +89,28 @@ describe("Phase 9A — External Sugarcane Dataset Audit & ML Pipeline", () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.activeRecommendation).toBe("AGRONOMIC_BASELINE");
+    expect(res.body.data.mlExperimentation.unit).toBe("LITERS_PER_DAY_DATASET_SCALE");
+    expect(res.body.data.mlExperimentation.comparability).toBe("NOT_DIRECTLY_COMPARABLE");
+    expect(res.body.data.mlExperimentation.dataset.origin).toBe("MODEL_SIMULATED");
+    expect(res.body.data.mlExperimentation.disclaimer).toContain("external model-simulated sugarcane research dataset");
     expect(res.body.data.mlExperimentation.prediction.status).toBe("EXPERIMENTAL");
     expect(res.body.data.mlExperimentation.prediction).toHaveProperty("predictedWaterLitersPerDay");
+    expect(res.body.data.mlExperimentation.prediction.unit).toBe("LITERS_PER_DAY_DATASET_SCALE");
+    expect(res.body.data.provenance.primaryEngine).toBe("FAO-56 agronomic baseline");
+  });
+
+  it("8. Phase 9B Safety Guarantee — ML prediction never overrides agronomic baseline decision", async () => {
+    const validTestToken = jwt.sign(
+      { id: "usr_test", name: "Test Farmer", mobile: "9999999999" },
+      process.env.JWT_SECRET
+    );
+    const res = await request(app)
+      .post("/api/ml/predict")
+      .set("Authorization", `Bearer ${validTestToken}`)
+      .send({ plotId: "invalid-plot-123" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.activeRecommendation).toBe("AGRONOMIC_BASELINE");
+    expect(res.body.data.agronomicBaseline).toHaveProperty("recommendation");
   });
 });

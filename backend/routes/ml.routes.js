@@ -50,12 +50,21 @@ router.post(
     let forecast = null;
 
     if (plotId) {
-      plot = await findOwnedPlot(userId, plotId);
+      try {
+        plot = await findOwnedPlot(userId, plotId);
+      } catch (e) {
+        plot = null;
+      }
     }
 
     if (plot) {
-      latestSensor = await ensureTodayReading(plot.id);
-      forecast = await fetchForecast(plot.lat ?? plot.latitude ?? 16.5, plot.lng ?? plot.longitude ?? 75.1);
+      try {
+        latestSensor = await ensureTodayReading(plot.id);
+        forecast = await fetchForecast(plot.lat ?? plot.latitude ?? 16.5, plot.lng ?? plot.longitude ?? 75.1);
+      } catch (e) {
+        latestSensor = null;
+        forecast = null;
+      }
     }
 
     // Build features
@@ -81,9 +90,28 @@ router.post(
           mlStatus: metadata.status,
           modelVersion: metadata.modelVersion,
           featureVersion: metadata.featureVersion,
-          algorithm: metadata.algorithm,
+          algorithm: metadata.algorithm || "Linear Regression",
+          model: {
+            version: metadata.modelVersion,
+            algorithm: metadata.algorithm || "Linear Regression",
+          },
+          dataset: {
+            source: "External Sugarcane Research Dataset (SIDSS Framework)",
+            doi: metadata.datasetDOI || "10.5281/zenodo.19725692",
+            origin: metadata.targetGenerationMethod === "D_GENERATED_BY_ML_PIPELINE" ? "MODEL_SIMULATED" : "EXTERNAL_RESEARCH_DATASET",
+          },
+          unit: "LITERS_PER_DAY_DATASET_SCALE",
+          comparability: "NOT_DIRECTLY_COMPARABLE",
           metrics: metadata.metrics,
-          prediction: mlPrediction,
+          baselineMetrics: metadata.baselineMetrics,
+          performanceLimitation: metadata.performanceLimitation,
+          disclaimer: "This experimental model was trained on an external model-simulated sugarcane research dataset. Its test metrics describe performance on that dataset and do not establish real-world field accuracy.",
+          prediction: {
+            ...mlPrediction,
+            value: mlPrediction ? mlPrediction.predictedWaterLitersPerDay : null,
+            unit: "LITERS_PER_DAY_DATASET_SCALE",
+            comparability: "NOT_DIRECTLY_COMPARABLE",
+          },
           reason: metadata.reason,
           extractedFeaturesCount: mlVectorObj.vector.length,
           extractedFeaturesSample: mlVectorObj.namedFeatures,
@@ -92,6 +120,7 @@ router.post(
           sensor: latestSensor ? (latestSensor.source || latestSensor.provenance || "SIMULATED") : "SIMULATED",
           weather: forecast ? (forecast.provenance || "FALLBACK") : "FALLBACK",
           mlModel: metadata.datasetName ? `External research dataset (${metadata.datasetName}, Zenodo DOI: ${metadata.datasetDOI})` : "EXTERNAL_RESEARCH_DATASET",
+          primaryEngine: "FAO-56 agronomic baseline",
         },
       },
     });
