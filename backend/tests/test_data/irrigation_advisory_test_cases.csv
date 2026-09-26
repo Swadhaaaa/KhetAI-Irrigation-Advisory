@@ -1,0 +1,11 @@
+TestCaseID,Description,soilMoisturePct,fieldCapacityPct,wiltingPointPct,soilType,cropStage,kc,et0MmPerDay,rainfallMmNext3Days,ExpectedDecisionBadge,ExpectedStatusCode,Category
+TC_DDT_001,Severe soil moisture depletion during Grand Growth stage,18,28,12,LOAM,GRAND_GROWTH,1.25,5.5,0,IRRIGATE_NOW,200,Valid Data
+TC_DDT_002,Saturated soil moisture near field capacity in Germination stage,28,28,12,LOAM,GERMINATION,0.40,4.5,0,NO_IRRIGATION,200,Boundary Value
+TC_DDT_003,Critically depleted soil moisture at wilting point,14,28,12,LOAM,GRAND_GROWTH,1.25,5.5,0,IRRIGATE_NOW,200,Edge Case
+TC_DDT_004,Heavy rainfall expected in next 3 days,22,28,12,LOAM,GRAND_GROWTH,1.25,5.5,25.0,MONITOR,200,Valid Data
+TC_DDT_005,Early vegetative stage low water demand with 28 percent moisture,28,28,12,LOAM,GERMINATION,0.40,4.0,0,NO_IRRIGATION,200,Valid Data
+TC_DDT_006,Moderate soil moisture in grand growth stage,25,28,12,LOAM,GRAND_GROWTH,1.25,5.0,0,IRRIGATE_SOON,200,Valid Data
+TC_DDT_007,Zero soil moisture extreme drought,0,28,12,LOAM,GRAND_GROWTH,1.25,6.0,0,IRRIGATE_NOW,200,Boundary Value
+TC_DDT_008,High ET0 evapotranspiration hot dry weather with depleted moisture,14,18,6,SAND,GRAND_GROWTH,1.25,9.5,0,IRRIGATE_NOW,200,Valid Data
+TC_DDT_009,Soil moisture at field capacity in Germination stage,28,28,12,LOAM,GERMINATION,0.40,4.0,0,NO_IRRIGATION,200,Boundary Value
+TC_DDT_010,Invalid negative soil moisture value,-5,28,12,LOAM,GRAND_GROWTH,1.25,5.0,0,IRRIGATE_NOW,200,Incorrect Format

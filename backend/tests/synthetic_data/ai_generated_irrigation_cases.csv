@@ -1,0 +1,11 @@
+TestCaseID,Description,soilMoisturePct,fieldCapacityPct,wiltingPointPct,soilType,cropStage,kc,et0MmPerDay,rainfallMmNext3Days,ExpectedDecisionBadge,ExpectedStatusCode,Category
+TC_SYNTH_001,Optimal moisture in germination stage with low water demand,28,28,12,LOAM,GERMINATION,0.4,5,0,NO_IRRIGATION,200,Normal Valid Data
+TC_SYNTH_002,Severe moisture depletion in grand growth stage requires immediate water,16,28,12,CLAY,GRAND_GROWTH,1.25,6.2,0,IRRIGATE_NOW,200,Boundary Value Data
+TC_SYNTH_003,Heavy rainfall forecast overriding irrigation demand,20,28,12,LOAM,TILLERING,0.75,4,35.5,MONITOR,200,Normal Valid Data
+TC_SYNTH_004,Germination stage low evapotranspiration with high soil moisture,28,28,12,SAND,GERMINATION,0.4,4.5,0,NO_IRRIGATION,200,Normal Valid Data
+TC_SYNTH_005,Grand growth peak demand with 25 percent soil moisture,25,28,12,LOAM,GRAND_GROWTH,1.25,5.5,0,IRRIGATE_SOON,200,Edge Case Scenario
+TC_SYNTH_006,Negative soil moisture invalid input triggers immediate irrigation alert,-10,28,12,LOAM,GRAND_GROWTH,1.25,5,0,IRRIGATE_NOW,200,Incorrect Format Data
+TC_SYNTH_007,Null soil moisture reading handled gracefully,null,28,12,LOAM,GRAND_GROWTH,1.25,5,0,INSUFFICIENT_DATA,200,Missing/Null Data
+TC_SYNTH_008,Extreme summer ET0 evapotranspiration rate,18,28,12,SAND,GRAND_GROWTH,1.25,11.5,0,IRRIGATE_NOW,200,Boundary Value Data
+TC_SYNTH_009,Special characters in crop stage input string,25,28,12,LOAM,<script>alert('xss')</script>,1.25,5,0,INSUFFICIENT_DATA,200,Special Character Data
+TC_SYNTH_010,Soil moisture at field capacity (28 percent) in Germination stage,28,28,12,LOAM,GERMINATION,0.4,5,0,NO_IRRIGATION,200,Edge Case Scenario
