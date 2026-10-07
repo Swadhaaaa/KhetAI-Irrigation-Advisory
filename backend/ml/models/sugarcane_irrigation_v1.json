@@ -1,0 +1,513 @@
+{
+  "modelVersion": "sugarcane-irrigation-v1",
+  "target": "drip_liters_per_day",
+  "targetTransformation": "log10",
+  "algorithm": "LinearRegression",
+  "dataset": "Sugarcane Irrigation Dataset for SIDSS Framework",
+  "datasetDOI": "10.5281/zenodo.19725692",
+  "datasetOrigin": "CatBoost-generated model simulation (not physical field measurement). Zenodo description states: computed irrigation requirements generated using a CatBoost-based model.",
+  "targetGenerationMethod": "D_GENERATED_BY_ML_PIPELINE",
+  "targetGenerationNote": "drip_liters_per_day values are outputs of a CatBoost-based irrigation model described in the SIDSS framework paper, not directly observed field measurements.",
+  "temporalInformation": "No date, timestamp, or temporal index present in dataset. inputleaf is an arbitrary row ID.",
+  "splitType": "Reproducible random split with fixed seed=42, ratio 70/15/15. Chronological split is impossible.",
+  "trainingRows": 1050,
+  "validationRows": 225,
+  "testRows": 225,
+  "featureCount": 13,
+  "features": [
+    "stomataopenclose",
+    "nitrogen",
+    "chloropyll",
+    "phosphorus",
+    "leafhumidity",
+    "leafevaporation",
+    "evapotranspiration",
+    "stageCode",
+    "soilph",
+    "soilhumidity",
+    "microclimatictemp",
+    "seasonCode",
+    "microclimaticwindspeed"
+  ],
+  "linearModel": {
+    "bias": 9.027075,
+    "weights": [
+      0.254158,
+      0.161663,
+      0.132926,
+      0.133267,
+      0.046212,
+      0.182991,
+      0.129343,
+      0.00176,
+      0.0415,
+      0.154357,
+      0.056248,
+      0.003073,
+      0.26355
+    ],
+    "means": [
+      0.546218,
+      2.496555,
+      39.780908,
+      0.39731,
+      77.018898,
+      1.470009,
+      4.022901,
+      2.026667,
+      6.493816,
+      24.848442,
+      32.536007,
+      0.982857,
+      8.290483
+    ],
+    "stds": [
+      0.265955,
+      0.87303,
+      11.348293,
+      0.115326,
+      10.03783,
+      0.570947,
+      1.141965,
+      1.393609,
+      0.590145,
+      8.714578,
+      4.339291,
+      0.83249,
+      3.950241
+    ]
+  },
+  "treeModel": {
+    "featureIndex": 0,
+    "threshold": 0.409499984,
+    "left": {
+      "featureIndex": 12,
+      "threshold": 8.50320414,
+      "left": {
+        "featureIndex": 12,
+        "threshold": 2.830842868,
+        "left": {
+          "featureIndex": 5,
+          "threshold": 1.4074292425000001,
+          "left": {
+            "featureIndex": 5,
+            "threshold": 0.67708499,
+            "left": {
+              "val": 7.346861201109278
+            },
+            "right": {
+              "featureIndex": 3,
+              "threshold": 0.3340950155,
+              "left": {
+                "val": 7.704787359897215
+              },
+              "right": {
+                "val": 8.02983092371545
+              }
+            }
+          },
+          "right": {
+            "featureIndex": 12,
+            "threshold": 1.641154226,
+            "left": {
+              "val": 7.941853930158281
+            },
+            "right": {
+              "featureIndex": 1,
+              "threshold": 2.0701178245,
+              "left": {
+                "val": 8.222052687996694
+              },
+              "right": {
+                "val": 8.482063391383376
+              }
+            }
+          }
+        },
+        "right": {
+          "featureIndex": 9,
+          "threshold": 18.430738795000003,
+          "left": {
+            "featureIndex": 5,
+            "threshold": 1.0139387565,
+            "left": {
+              "featureIndex": 0,
+              "threshold": 0.310225227,
+              "left": {
+                "val": 7.76221074381953
+              },
+              "right": {
+                "val": 8.09685966578102
+              }
+            },
+            "right": {
+              "featureIndex": 1,
+              "threshold": 1.4740217055,
+              "left": {
+                "val": 8.189436977907022
+              },
+              "right": {
+                "val": 8.464700614031026
+              }
+            }
+          },
+          "right": {
+            "featureIndex": 6,
+            "threshold": 2.4098036335,
+            "left": {
+              "featureIndex": 5,
+              "threshold": 1.9034753195,
+              "left": {
+                "val": 8.112910349333857
+              },
+              "right": {
+                "val": 8.620325931359554
+              }
+            },
+            "right": {
+              "featureIndex": 0,
+              "threshold": 0.19532547849999998,
+              "left": {
+                "val": 8.548197930165744
+              },
+              "right": {
+                "val": 8.854737757838649
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "featureIndex": 3,
+        "threshold": 0.31595203149999995,
+        "left": {
+          "featureIndex": 2,
+          "threshold": 47.057807955,
+          "left": {
+            "featureIndex": 5,
+            "threshold": 1.5712110080000001,
+            "left": {
+              "featureIndex": 10,
+              "threshold": 39.86984583,
+              "left": {
+                "val": 8.408639716171509
+              },
+              "right": {
+                "val": 8.9904284672259
+              }
+            },
+            "right": {
+              "featureIndex": 3,
+              "threshold": 0.233879883,
+              "left": {
+                "val": 8.3326624221745
+              },
+              "right": {
+                "val": 8.838789740990114
+              }
+            }
+          },
+          "right": {
+            "featureIndex": 0,
+            "threshold": 0.1941010605,
+            "left": {
+              "val": 8.65912132418643
+            },
+            "right": {
+              "featureIndex": 8,
+              "threshold": 7.355626001,
+              "left": {
+                "val": 8.98380612333496
+              },
+              "right": {
+                "val": 9.340826600854744
+              }
+            }
+          }
+        },
+        "right": {
+          "featureIndex": 1,
+          "threshold": 1.798608561,
+          "left": {
+            "featureIndex": 5,
+            "threshold": 1.2803885959999999,
+            "left": {
+              "featureIndex": 2,
+              "threshold": 37.359283265,
+              "left": {
+                "val": 8.210640411579057
+              },
+              "right": {
+                "val": 8.687513593213216
+              }
+            },
+            "right": {
+              "featureIndex": 0,
+              "threshold": 0.136808707,
+              "left": {
+                "val": 8.531815355918042
+              },
+              "right": {
+                "val": 8.985765680215957
+              }
+            }
+          },
+          "right": {
+            "featureIndex": 5,
+            "threshold": 0.8564314965,
+            "left": {
+              "featureIndex": 9,
+              "threshold": 25.200048865,
+              "left": {
+                "val": 8.49336703266496
+              },
+              "right": {
+                "val": 8.94475242629155
+              }
+            },
+            "right": {
+              "featureIndex": 6,
+              "threshold": 4.495000075,
+              "left": {
+                "val": 9.09044045210698
+              },
+              "right": {
+                "val": 9.345141551666183
+              }
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "featureIndex": 12,
+      "threshold": 4.953051275,
+      "left": {
+        "featureIndex": 5,
+        "threshold": 1.6716682925,
+        "left": {
+          "featureIndex": 9,
+          "threshold": 15.761838925,
+          "left": {
+            "featureIndex": 0,
+            "threshold": 0.9238377615,
+            "left": {
+              "featureIndex": 8,
+              "threshold": 5.903628484,
+              "left": {
+                "val": 8.019237598265152
+              },
+              "right": {
+                "val": 8.255796066077057
+              }
+            },
+            "right": {
+              "val": 8.556667299900846
+            }
+          },
+          "right": {
+            "featureIndex": 5,
+            "threshold": 1.0061567555000002,
+            "left": {
+              "featureIndex": 3,
+              "threshold": 0.5541339789999999,
+              "left": {
+                "val": 8.482103828499719
+              },
+              "right": {
+                "val": 8.939160355170165
+              }
+            },
+            "right": {
+              "featureIndex": 12,
+              "threshold": 3.2755569325,
+              "left": {
+                "val": 8.750238009396607
+              },
+              "right": {
+                "val": 9.014917494405934
+              }
+            }
+          }
+        },
+        "right": {
+          "featureIndex": 1,
+          "threshold": 1.4711311745,
+          "left": {
+            "featureIndex": 3,
+            "threshold": 0.3099148335,
+            "left": {
+              "val": 8.166051621516427
+            },
+            "right": {
+              "val": 8.597430559266522
+            }
+          },
+          "right": {
+            "featureIndex": 12,
+            "threshold": 1.9341630665,
+            "left": {
+              "featureIndex": 2,
+              "threshold": 40.741630165000004,
+              "left": {
+                "val": 8.484857520982185
+              },
+              "right": {
+                "val": 9.004899742162806
+              }
+            },
+            "right": {
+              "featureIndex": 3,
+              "threshold": 0.39024199800000003,
+              "left": {
+                "val": 9.045516882528817
+              },
+              "right": {
+                "val": 9.329358852167374
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "featureIndex": 5,
+        "threshold": 1.262555692,
+        "left": {
+          "featureIndex": 6,
+          "threshold": 4.081759191,
+          "left": {
+            "featureIndex": 12,
+            "threshold": 10.98304407,
+            "left": {
+              "featureIndex": 1,
+              "threshold": 1.625636987,
+              "left": {
+                "val": 8.457038434007492
+              },
+              "right": {
+                "val": 8.953456216857255
+              }
+            },
+            "right": {
+              "featureIndex": 10,
+              "threshold": 29.66415035,
+              "left": {
+                "val": 8.954939873716526
+              },
+              "right": {
+                "val": 9.370613188287642
+              }
+            }
+          },
+          "right": {
+            "featureIndex": 1,
+            "threshold": 2.705252508,
+            "left": {
+              "featureIndex": 3,
+              "threshold": 0.410971033,
+              "left": {
+                "val": 9.01801488897466
+              },
+              "right": {
+                "val": 9.402791140952429
+              }
+            },
+            "right": {
+              "featureIndex": 0,
+              "threshold": 0.773202407,
+              "left": {
+                "val": 9.358790107457102
+              },
+              "right": {
+                "val": 9.63810926082816
+              }
+            }
+          }
+        },
+        "right": {
+          "featureIndex": 9,
+          "threshold": 21.97712646,
+          "left": {
+            "featureIndex": 1,
+            "threshold": 2.390432278,
+            "left": {
+              "featureIndex": 3,
+              "threshold": 0.31775792199999997,
+              "left": {
+                "val": 8.83736166042331
+              },
+              "right": {
+                "val": 9.186266922547492
+              }
+            },
+            "right": {
+              "featureIndex": 2,
+              "threshold": 41.62367794,
+              "left": {
+                "val": 9.245063084859458
+              },
+              "right": {
+                "val": 9.617647214964697
+              }
+            }
+          },
+          "right": {
+            "featureIndex": 1,
+            "threshold": 2.062289007,
+            "left": {
+              "featureIndex": 3,
+              "threshold": 0.3394995775,
+              "left": {
+                "val": 9.211141860536607
+              },
+              "right": {
+                "val": 9.440779429223277
+              }
+            },
+            "right": {
+              "featureIndex": 6,
+              "threshold": 4.9291061795,
+              "left": {
+                "val": 9.67449497743357
+              },
+              "right": {
+                "val": 9.964840621006372
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "metrics": {
+    "logScaleMAE": 0.105,
+    "logScaleRMSE": 0.1277,
+    "logScaleR2": 0.9421,
+    "originalScaleMAE": 422857147,
+    "originalScaleRMSE": 1010330178,
+    "originalScaleR2": 0.8507
+  },
+  "baselineMetrics": {
+    "logScaleMAE": 0.4232,
+    "logScaleRMSE": 0.5322,
+    "logScaleR2": -0.0058,
+    "originalScaleMAE": 1724788489,
+    "originalScaleRMSE": 2630897620,
+    "originalScaleR2": -0.0122
+  },
+  "validityCheck": {
+    "mlLogPredictions": { "nanCount": 0, "infCount": 0, "negCount": 0, "zeroCount": 0, "invalidCount": 0 },
+    "mlRawPredictions": { "nanCount": 0, "infCount": 0, "negCount": 0, "zeroCount": 0, "invalidCount": 0 }
+  },
+  "performanceLimitation": "The model was evaluated on an external model-simulated research dataset. The reported metrics describe performance on this dataset and do not establish real-world field accuracy.",
+  "topContributingFeatures": [
+    "microclimaticwindspeed",
+    "stomataopenclose",
+    "leafevaporation",
+    "nitrogen",
+    "soilhumidity"
+  ],
+  "status": "EXPERIMENTAL_MODEL_TRAINED",
+  "trainedAt": "2026-09-21T09:21:38.634Z",
+  "validatedAt": "2026-09-21T13:14:00.000Z"
+}

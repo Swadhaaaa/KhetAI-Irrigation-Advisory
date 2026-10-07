@@ -144,12 +144,20 @@ suite("PostgreSQL integration", () => {
         expect(duplicate.status).toBe(202);
         expect(duplicate.body.duplicates).toBe(1);
 
-        const invalid = await request(app).post("/api/iot/readings").set(headers).send({
+        const outOfRange = await request(app).post("/api/iot/readings").set(headers).send({
             ...payload,
-            eventId: `${payload.eventId}-invalid`,
+            eventId: `${payload.eventId}-out-of-range`,
             measurements: [{ type: "humidity", value: 120, unit: "percent" }],
         });
-        expect(invalid.status).toBe(400);
+        expect(outOfRange.status).toBe(202);
+        expect(outOfRange.body.quality.INVALID).toBe(1);
+
+        const malformedUnit = await request(app).post("/api/iot/readings").set(headers).send({
+            ...payload,
+            eventId: `${payload.eventId}-malformed`,
+            measurements: [{ type: "humidity", value: 50, unit: "mm" }],
+        });
+        expect(malformedUnit.status).toBe(400);
         const unauthorized = await request(app).post("/api/iot/readings").set({ ...headers, "X-Device-Secret": "wrong" }).send(payload);
         expect(unauthorized.status).toBe(401);
 

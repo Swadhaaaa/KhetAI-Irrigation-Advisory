@@ -6,8 +6,11 @@ describe("sensor data quality", () => {
         expect(classifyMeasurement({ type: "soil_moisture_30", value: 42, unit: "percent" }).field).toBe("soilMoisture30");
     });
 
-    it("rejects impossible values and unit mismatches", () => {
-        expect(() => classifyMeasurement({ type: "humidity", value: 120, unit: "percent" })).toThrow();
+    it("classifies out-of-range values as INVALID quality and throws on unit mismatches", () => {
+        const outOfRange = classifyMeasurement({ type: "humidity", value: 120, unit: "percent" });
+        expect(outOfRange.quality).toBe("INVALID");
+        expect(outOfRange.qualityReason).toBe("out_of_range_humidity");
+
         expect(() => classifyMeasurement({ type: "rainfall", value: 2, unit: "percent" })).toThrow();
     });
 

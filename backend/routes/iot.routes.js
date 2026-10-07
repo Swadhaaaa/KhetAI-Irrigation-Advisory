@@ -6,7 +6,7 @@ const { requireAuth } = require("../middleware/auth");
 const { authenticateDevice } = require("../middleware/deviceAuth");
 const { asyncHandler } = require("../middleware/asyncHandler");
 const { validateBody, sensorIngestionSchema } = require("../utils/validation");
-const { classifyMeasurement, classifyTimestamp } = require("../utils/sensorQuality");
+const { classifyMeasurement, classifyTimestamp, combineQuality } = require("../utils/sensorQuality");
 const {
     findOwnedDevice,
     provisionDeviceCredential,
@@ -39,16 +39,17 @@ router.post("/readings", deviceRateLimit, authenticateDevice, validateBody(senso
     const timestampQuality = classifyTimestamp(req.body.measuredAt);
     const measuredAt = new Date(req.body.measuredAt);
     const records = req.body.measurements.map((measurement) => {
-        const rule = classifyMeasurement(measurement);
+        const mQuality = classifyMeasurement(measurement);
+        const combined = combineQuality(timestampQuality, mQuality);
         return {
             sourceEventId: `${req.body.eventId}:${measurement.type}`,
             measuredAt,
             sensorType: measurement.type,
             unit: measurement.unit,
             value: measurement.value,
-            field: rule.field,
-            quality: timestampQuality.quality,
-            qualityReason: timestampQuality.qualityReason,
+            field: mQuality.field,
+            quality: combined.quality,
+            qualityReason: combined.qualityReason,
         };
     });
 

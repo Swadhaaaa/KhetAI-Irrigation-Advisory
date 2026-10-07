@@ -1,0 +1,70 @@
+[
+  {
+    "TestCaseID": "TC_AUTH_DDT_001",
+    "Description": "Valid farmer registration with complete details",
+    "Action": "REGISTER",
+    "Input": {
+      "name": "Ramesh Patil",
+      "mobile": "9876543210",
+      "password": "SecurePassword123!",
+      "village": "Sangli",
+      "taluk": "Miraj",
+      "district": "Sangli"
+    },
+    "ExpectedStatus": 201,
+    "Category": "Valid Data"
+  },
+  {
+    "TestCaseID": "TC_AUTH_DDT_002",
+    "Description": "Registration failure due to short password (< 8 chars)",
+    "Action": "REGISTER",
+    "Input": {
+      "name": "Suresh Kumar",
+      "mobile": "9876543211",
+      "password": "pass",
+      "village": "Pune",
+      "taluk": "Haveli",
+      "district": "Pune"
+    },
+    "ExpectedStatus": 400,
+    "Category": "Boundary Value"
+  },
+  {
+    "TestCaseID": "TC_AUTH_DDT_003",
+    "Description": "Registration failure due to invalid mobile number format (non-10 digit)",
+    "Action": "REGISTER",
+    "Input": {
+      "name": "Anil Deshmukh",
+      "mobile": "12345",
+      "password": "ValidPassword123!",
+      "village": "Kolhapur",
+      "taluk": "Karveer",
+      "district": "Kolhapur"
+    },
+    "ExpectedStatus": 400,
+    "Category": "Incorrect Format"
+  },
+  {
+    "TestCaseID": "TC_AUTH_DDT_004",
+    "Description": "Registration failure due to empty name field",
+    "Action": "REGISTER",
+    "Input": {
+      "name": "",
+      "mobile": "9876543212",
+      "password": "ValidPassword123!",
+      "village": "Satara",
+      "taluk": "Karad",
+      "district": "Satara"
+    },
+    "ExpectedStatus": 400,
+    "Category": "Empty Value"
+  },
+  {
+    "TestCaseID": "TC_AUTH_DDT_005",
+    "Description": "Unauthenticated access to protected plot resource",
+    "Action": "PROTECTED_ACCESS",
+    "Input": {},
+    "ExpectedStatus": 401,
+    "Category": "Negative Test Case"
+  }
+]

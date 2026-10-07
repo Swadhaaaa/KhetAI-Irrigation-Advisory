@@ -19,7 +19,10 @@ describe("KhetAI synthetic agricultural sensor data", () => {
                 expect(result.every(({ error }) => !error)).toBe(true);
                 expect(result.some(({ classified }) => classified.field)).toBe(true);
             } else {
-                expect(result.some(({ error }) => errorCodes.has(error))).toBe(true);
+                const invalidResult = result.some(({ error, classified }) =>
+                    errorCodes.has(error) || (classified && classified.quality === "INVALID")
+                );
+                expect(invalidResult).toBe(true);
             }
         });
     }

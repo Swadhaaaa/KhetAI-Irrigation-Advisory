@@ -257,8 +257,14 @@ async function findReadingForDay(plotId, start, end) {
 
 async function listSensorReadings(plotId, days = 14, options = {}) {
     const limit = Math.min(options.limit || days, 100);
+    const where = { plotId };
+    if (options.quality) {
+        where.quality = options.quality;
+    } else if (options.excludeInvalid) {
+        where.quality = { in: ["VALID", "SUSPECT"] };
+    }
     const readings = await prisma().sensorReading.findMany({
-        where: { plotId },
+        where,
         orderBy: { measuredAt: "desc" },
         take: Math.min(limit * 8, 800),
     });
@@ -330,19 +336,39 @@ async function listOwnedDeviceHealth(userId, plotId) {
         orderBy: { updatedAt: "desc" },
         take: 100,
     });
-    return devices.map((device) => ({
-        ...device,
-        batteryPct: numberValue(device.batteryPct),
-        lastSeenAt: device.lastSeenAt?.toISOString() || null,
-        lastIngestedAt: device.lastIngestedAt?.toISOString() || null,
-    }));
+    const now = Date.now();
+    return devices.map((device) => {
+        let computedHealth = device.healthStatus || "UNKNOWN";
+        if (!device.isActive) {
+            computedHealth = "OFFLINE";
+        } else if (device.lastSeenAt) {
+            const diffHours = (now - device.lastSeenAt.getTime()) / (1000 * 60 * 60);
+            if (diffHours > 168) {
+                computedHealth = "OFFLINE";
+            } else if (diffHours > 24) {
+                computedHealth = "STALE";
+            } else if (device.batteryPct !== null && Number(device.batteryPct) < 15) {
+                computedHealth = "DEGRADED";
+            } else if (computedHealth === "UNKNOWN") {
+                computedHealth = "ONLINE";
+            }
+        }
+        return {
+            ...device,
+            healthStatus: computedHealth,
+            batteryPct: numberValue(device.batteryPct),
+            lastSeenAt: device.lastSeenAt?.toISOString() || null,
+            lastIngestedAt: device.lastIngestedAt?.toISOString() || null,
+        };
+    });
 }
 
 async function ingestDeviceReadings(device, records, deviceState) {
     return prisma().$transaction(async (tx) => {
         let accepted = 0;
         let duplicates = 0;
-        const quality = { VALID: 0, SUSPECT: 0 };
+        const quality = { VALID: 0, SUSPECT: 0, INVALID: 0 };
+        let hasInvalid = false;
 
         for (const record of records) {
             const existing = await tx.sensorReading.findFirst({
@@ -362,6 +388,8 @@ async function ingestDeviceReadings(device, records, deviceState) {
                 quality[existing.quality] = (quality[existing.quality] || 0) + 1;
                 continue;
             }
+
+            if (record.quality === "INVALID") hasInvalid = true;
 
             const data = {
                 id: generateId("snr"),
@@ -385,6 +413,13 @@ async function ingestDeviceReadings(device, records, deviceState) {
             quality[record.quality] = (quality[record.quality] || 0) + 1;
         }
 
+        let computedHealthStatus = "ONLINE";
+        if (deviceState.batteryPct !== undefined && deviceState.batteryPct < 15) {
+            computedHealthStatus = "DEGRADED";
+        } else if (hasInvalid) {
+            computedHealthStatus = "DEGRADED";
+        }
+
         await tx.sensorDevice.update({
             where: { id: device.id },
             data: {
@@ -393,7 +428,7 @@ async function ingestDeviceReadings(device, records, deviceState) {
                 batteryPct: deviceState.batteryPct ?? undefined,
                 firmware: deviceState.firmware ?? undefined,
                 connected: true,
-                healthStatus: "ONLINE",
+                healthStatus: computedHealthStatus,
                 lastErrorCode: null,
             },
         });
@@ -408,6 +443,25 @@ async function upsertSensorReading(data) {
         create: data,
     });
     return sensorResponse(reading);
+}
+
+async function upsertDemoScenarioReading(eventKey, readingData) {
+    return prisma().sensorReading.upsert({
+        where: { eventKey },
+        update: {
+            measuredAt: readingData.measuredAt,
+            soilMoisture30: readingData.soilMoisture30,
+            soilMoisture60: readingData.soilMoisture60,
+            soilTemperature: readingData.soilTemperature,
+            ambientTemperature: readingData.ambientTemperature,
+            humidityPct: readingData.humidityPct,
+            rainfallMm: readingData.rainfallMm ?? null,
+            quality: readingData.quality,
+            qualityReason: readingData.qualityReason ?? null,
+            provenance: "SIMULATED",
+        },
+        create: readingData,
+    });
 }
 
 async function findIrrigationOnDay(plotId, start, end) {
@@ -517,6 +571,97 @@ async function markAlertRead(alertId, userId) {
     return true;
 }
 
+async function getCachedWeather(plotId, freshnessMinutes = 360) {
+    try {
+        const since = new Date(Date.now() - freshnessMinutes * 60 * 1000);
+        const records = await prisma().weatherData.findMany({
+            where: {
+                plotId,
+                kind: "FORECAST",
+                fetchedAt: { gte: since },
+            },
+            orderBy: { validAt: "asc" },
+            take: 14,
+        });
+        if (!records || records.length === 0) return null;
+
+        const days = records.map((r) => ({
+            date: dateOnly(r.validAt),
+            tempMax: numberValue(r.temperatureMax),
+            tempMin: numberValue(r.temperatureMin),
+            humidity: numberValue(r.humidityPct) ?? 60,
+            rainProbability: numberValue(r.rainProbability) ?? 0,
+            rainMm: numberValue(r.rainfallMm) ?? 0,
+            windSpeed: numberValue(r.windSpeed) ?? 0,
+            et0: r.rawPayload?.et0 != null ? numberValue(r.rawPayload.et0) : null,
+            condition: r.rawPayload?.condition || (r.rainProbability > 55 ? "Rain likely" : r.rainProbability > 25 ? "Partly cloudy" : "Clear"),
+            source: r.provider === "OPEN_METEO" ? "open-meteo" : "simulated",
+            provenance: "CACHED_API",
+            fetchedAt: r.fetchedAt.toISOString(),
+        }));
+
+        return { days, provenance: "CACHED_API", fetchedAt: records[0].fetchedAt.toISOString() };
+    } catch (err) {
+        return null;
+    }
+}
+
+async function saveCachedWeather(plotId, provider, lat, lng, days, rawPayload = {}, provenance = "LIVE_API") {
+    try {
+        const now = new Date();
+        const operations = days.map((day) => {
+            const validAt = new Date(`${day.date}T00:00:00.000Z`);
+            const dbProvenance = provenance === "LIVE_API" || provenance === "LIVE" ? "LIVE" : provenance === "FALLBACK" ? "FALLBACK" : "LIVE";
+            return prisma().weatherData.upsert({
+                where: {
+                    plotId_kind_provider_validAt: {
+                        plotId,
+                        kind: "FORECAST",
+                        provider,
+                        validAt,
+                    },
+                },
+                update: {
+                    latitude: lat,
+                    longitude: lng,
+                    fetchedAt: now,
+                    temperatureMax: day.tempMax,
+                    temperatureMin: day.tempMin,
+                    humidityPct: day.humidity,
+                    rainfallMm: day.rainMm,
+                    rainProbability: day.rainProbability,
+                    windSpeed: day.windSpeed ?? null,
+                    rawPayload: { ...rawPayload, et0: day.et0, condition: day.condition },
+                    provenance: dbProvenance,
+                },
+                create: {
+                    id: generateId("wtr"),
+                    plotId,
+                    kind: "FORECAST",
+                    provider,
+                    latitude: lat,
+                    longitude: lng,
+                    validAt,
+                    fetchedAt: now,
+                    temperatureMax: day.tempMax,
+                    temperatureMin: day.tempMin,
+                    humidityPct: day.humidity,
+                    rainfallMm: day.rainMm,
+                    rainProbability: day.rainProbability,
+                    windSpeed: day.windSpeed ?? null,
+                    rawPayload: { ...rawPayload, et0: day.et0, condition: day.condition },
+                    provenance: dbProvenance,
+                },
+            });
+        });
+
+        await prisma().$transaction(operations, { timeout: 30000 });
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
 module.exports = {
     prisma,
     disconnect,
@@ -555,4 +700,7 @@ module.exports = {
     upsertAlerts,
     readAlertIds,
     markAlertRead,
+    getCachedWeather,
+    saveCachedWeather,
+    upsertDemoScenarioReading,
 };

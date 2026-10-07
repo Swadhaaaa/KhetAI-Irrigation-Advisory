@@ -136,7 +136,7 @@
         "expected": {
             "waterStressLevel": "Low",
             "nextIrrigationInDays": 3,
-            "rainfallNote": "Rain expected in the next 24 hours — irrigation can be delayed to avoid waterlogging."
+            "rainfallNote": "Rain expected in the next 24 hours (12 mm) — irrigation can be delayed to avoid waterlogging."
         }
     },
     {

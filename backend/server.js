@@ -17,6 +17,8 @@ const yieldRoutes = require("./routes/yield.routes");
 const alertsRoutes = require("./routes/alerts.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const iotRoutes = require("./routes/iot.routes");
+const demoRoutes = require("./routes/demo.routes");
+const mlRoutes = require("./routes/ml.routes");
 const repository = require("./repositories/postgres.repository");
 
 const app = express();
@@ -95,12 +97,17 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.get("/api/ready", async (req, res, next) => {
+app.get("/api/ready", async (req, res) => {
   try {
     await repository.prisma().$queryRaw`SELECT 1`;
-    res.json({ status: "ready", time: new Date().toISOString() });
+    res.json({ status: "ready", database: "connected", time: new Date().toISOString() });
   } catch (error) {
-    next(error);
+    res.status(503).json({
+      status: "not_ready",
+      database: "disconnected",
+      error: "Database unavailable or not configured",
+      time: new Date().toISOString(),
+    });
   }
 });
 
@@ -115,6 +122,8 @@ app.use("/api/yield", yieldRoutes);
 app.use("/api/alerts", alertsRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/iot", iotRoutes);
+app.use("/api/demo", demoRoutes);
+app.use("/api/ml", mlRoutes);
 
 // FRONTEND
 const FRONTEND_DIR = path.join(__dirname, "..", "frontend");

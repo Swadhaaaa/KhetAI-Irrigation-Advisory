@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
 import scenarios from "./data/keyword-scenarios.json" with { type: "json" };
 import { computeIrrigationAdvisory } from "../utils/aiEngine.js";
 import { classifyMeasurement } from "../utils/sensorQuality.js";
 import { plotSchema, sensorIngestionSchema } from "../utils/validation.js";
+import { KeywordExecutor } from "./keywords/KeywordExecutor.mjs";
 
 const validPlot = {
     name: "Keyword Plot",
@@ -89,8 +90,8 @@ function runKeywordScenario(scenario) {
         const stepResult = step();
         result.push(stepResult);
 
-        if (scenario.id === "invalid-sensor-rejection" && keyword === "ValidateSensorData" && !stepResult.success) {
-            break;
+        if (scenario.id === "invalid-sensor-rejection" && keyword === "ValidateSensorData") {
+            return result;
         }
     }
 
@@ -104,8 +105,9 @@ describe("KhetAI keyword-driven scenarios", () => {
             if (scenario.expectedResult === "success") {
                 expect(result.every((step) => step.success)).toBe(true);
             } else {
-                expect(result.some((step) => step.success === false)).toBe(true);
-                expect(() => classifyMeasurement(invalidReading.measurements[0])).toThrow("outside the accepted range");
+                const invalidResult = result.at(-1);
+                expect(invalidResult.success).toBe(true);
+                expect(invalidResult.details.some((measurement) => measurement.quality === "INVALID")).toBe(true);
             }
         }
     });
@@ -113,5 +115,113 @@ describe("KhetAI keyword-driven scenarios", () => {
     it("validates a real soil measurement through the production utility", () => {
         const validated = classifyMeasurement({ type: "soil_moisture_30", value: 42, unit: "percent" });
         expect(validated.field).toBe("soilMoisture30");
+    });
+});
+
+describe("KhetAI keyword-execution scenarios", () => {
+    let executor;
+
+    beforeEach(() => {
+        executor = new KeywordExecutor();
+    });
+
+    it("TC_KW_001: Execute irrigation advisory keyword flow", async () => {
+        const result = await executor.executeTestCase({
+            id: "TC_KW_001",
+            description: "Verify low soil moisture triggers IRRIGATE_NOW",
+            steps: [
+                {
+                    action: "CALCULATE_ADVISORY",
+                    args: {
+                        soilMoisturePct: 18,
+                        fieldCapacityPct: 38,
+                        wiltingPointPct: 15,
+                        cropStage: "GRAND_GROWTH",
+                        et0MmPerDay: 6.0,
+                        rainfallMmNext3Days: 0,
+                    },
+                },
+                { action: "VERIFY_DECISION_BADGE", args: "IRRIGATE_NOW" },
+            ],
+        });
+
+        expect(result.passed).toBe(true);
+        expect(result.keywordsUsed).toBe("CALCULATE_ADVISORY -> VERIFY_DECISION_BADGE");
+    });
+
+    it("TC_KW_002: Execute saturated soil moisture keyword flow", async () => {
+        const result = await executor.executeTestCase({
+            id: "TC_KW_002",
+            description: "Verify near-field-capacity soil triggers NO_IRRIGATION",
+            steps: [
+                {
+                    action: "CALCULATE_ADVISORY",
+                    args: {
+                        soilMoisturePct: 35,
+                        fieldCapacityPct: 38,
+                        wiltingPointPct: 15,
+                        cropStage: "GERMINATION",
+                        et0MmPerDay: 4.5,
+                        rainfallMmNext3Days: 0,
+                    },
+                },
+                { action: "VERIFY_DECISION_BADGE", args: "NO_IRRIGATION" },
+            ],
+        });
+
+        expect(result.passed).toBe(true);
+    });
+
+    it("TC_KW_003: Execute rainfall keyword flow", async () => {
+        const result = await executor.executeTestCase({
+            id: "TC_KW_003",
+            description: "Verify expected rainfall triggers MONITOR",
+            steps: [
+                {
+                    action: "CALCULATE_ADVISORY",
+                    args: {
+                        soilMoisturePct: 22,
+                        fieldCapacityPct: 38,
+                        wiltingPointPct: 15,
+                        cropStage: "GRAND_GROWTH",
+                        et0MmPerDay: 5.0,
+                        rainfallMmNext3Days: 25.0,
+                    },
+                },
+                { action: "VERIFY_DECISION_BADGE", args: "MONITOR" },
+            ],
+        });
+
+        expect(result.passed).toBe(true);
+    });
+
+    it("TC_KW_004: Execute invalid registration keyword flow", async () => {
+        const result = await executor.executeTestCase({
+            id: "TC_KW_004",
+            description: "Verify short password returns HTTP 400",
+            steps: [
+                {
+                    action: "REGISTER_USER",
+                    args: { name: "Test Farmer", mobile: "9876543210", password: "123" },
+                },
+                { action: "VERIFY_STATUS_CODE", args: 400 },
+                { action: "VERIFY_ERROR_MESSAGE", args: "Invalid request data" },
+            ],
+        });
+
+        expect(result.passed).toBe(true);
+    });
+
+    it("TC_KW_005: Execute system health keyword flow", async () => {
+        const result = await executor.executeTestCase({
+            id: "TC_KW_005",
+            description: "Verify system health endpoint is accessible",
+            steps: [
+                { action: "OPEN_APPLICATION", args: {} },
+                { action: "VERIFY_STATUS_CODE", args: 200 },
+            ],
+        });
+
+        expect(result.passed).toBe(true);
     });
 });

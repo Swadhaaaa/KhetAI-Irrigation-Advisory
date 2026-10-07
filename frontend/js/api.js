@@ -67,6 +67,10 @@ const api = {
   getAlerts: () => apiRequest(`/alerts`),
   markAlertRead: (id) => apiRequest(`/alerts/${id}/read`, { method: "POST" }),
   getDashboardSummary: () => apiRequest(`/dashboard/summary`),
+  triggerScenario: (plotId, scenario) => apiRequest("/demo/scenario", { method: "POST", body: { plotId, scenario } }),
+  getMlStatus: () => apiRequest("/ml/status", { auth: false }),
+  getMlPrediction: (plotId) => apiRequest("/ml/predict", { method: "POST", body: { plotId } }),
+  seedDemoData: () => apiRequest("/demo/seed", { method: "POST", auth: false }),
 };
 
 function showToast(message, type = "default") {

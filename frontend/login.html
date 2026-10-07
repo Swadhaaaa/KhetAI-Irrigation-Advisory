@@ -60,6 +60,10 @@
           </div>
         </form>
 
+        <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border-soft); text-align:center;">
+          <button type="button" class="btn btn-gold btn-block" id="demo-seed-btn">🌱 Instant Demo Login (1-Click Evaluator Access)</button>
+        </div>
+
         <p class="auth-switch">New to KhetAI? <a href="signup.html">Create your farmer account</a></p>
       </div>
     </div>
@@ -92,6 +96,23 @@
         errorBox.classList.add("show");
         submitBtn.disabled = false;
         submitBtn.textContent = "Log in";
+      }
+    });
+
+    document.getElementById("demo-seed-btn").addEventListener("click", async () => {
+      errorBox.classList.remove("show");
+      const seedBtn = document.getElementById("demo-seed-btn");
+      seedBtn.disabled = true;
+      seedBtn.textContent = "Setting up demo farm…";
+      try {
+        const { token, user } = await api.seedDemoData();
+        Auth.setSession(token, user);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        errorBox.textContent = err.message || "Failed to setup demo environment.";
+        errorBox.classList.add("show");
+        seedBtn.disabled = false;
+        seedBtn.textContent = "🌱 Instant Demo Login (1-Click Evaluator Access)";
       }
     });
   </script>

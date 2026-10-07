@@ -187,6 +187,7 @@ model SensorReading {
   @@index([deviceId, sourceEventId])
   @@index([deviceId, ingestedAt])
   @@index([plotId, measuredAt])
+  @@index([plotId, quality, measuredAt])
 }
 
 model WeatherData {
