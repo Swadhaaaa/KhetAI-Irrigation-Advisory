@@ -1,0 +1,12 @@
+[
+    {
+        "id": "hundred-advisories",
+        "iterations": 100,
+        "maxDurationMs": 200
+    },
+    {
+        "id": "five-hundred-advisories",
+        "iterations": 500,
+        "maxDurationMs": 1000
+    }
+]

@@ -1,0 +1,234 @@
+[
+    {
+        "id": "low-soil-moisture",
+        "description": "Low moisture should trigger immediate irrigation",
+        "plot": {
+            "area": 2.5,
+            "plantingDate": "2026-01-01",
+            "soilType": "Loam"
+        },
+        "latestSensor": {
+            "soilMoisturePct": 10,
+            "soilTemp": 28
+        },
+        "forecast": {
+            "days": [
+                {
+                    "date": "2026-10-07",
+                    "tempMax": 32,
+                    "tempMin": 23,
+                    "humidity": 55,
+                    "rainProbability": 20,
+                    "rainMm": 0
+                },
+                {
+                    "date": "2026-10-08",
+                    "tempMax": 32,
+                    "tempMin": 23,
+                    "humidity": 55,
+                    "rainProbability": 25,
+                    "rainMm": 0
+                },
+                {
+                    "date": "2026-10-09",
+                    "tempMax": 32,
+                    "tempMin": 23,
+                    "humidity": 55,
+                    "rainProbability": 20,
+                    "rainMm": 0
+                }
+            ]
+        },
+        "expected": {
+            "cropStage": "Maturity & Ripening",
+            "waterStressLevel": "High",
+            "nextIrrigationInDays": 0,
+            "irrigationDurationHours": 2
+        }
+    },
+    {
+        "id": "moderate-soil-moisture",
+        "description": "Moderate moisture should produce a short delay",
+        "plot": {
+            "area": 3,
+            "plantingDate": "2025-09-01",
+            "soilType": "Clay Loam"
+        },
+        "latestSensor": {
+            "soilMoisturePct": 26,
+            "soilTemp": 29
+        },
+        "forecast": {
+            "days": [
+                {
+                    "date": "2026-10-07",
+                    "tempMax": 30,
+                    "tempMin": 22,
+                    "humidity": 60,
+                    "rainProbability": 20,
+                    "rainMm": 0
+                },
+                {
+                    "date": "2026-10-08",
+                    "tempMax": 30,
+                    "tempMin": 22,
+                    "humidity": 60,
+                    "rainProbability": 20,
+                    "rainMm": 0
+                },
+                {
+                    "date": "2026-10-09",
+                    "tempMax": 29,
+                    "tempMin": 21,
+                    "humidity": 62,
+                    "rainProbability": 25,
+                    "rainMm": 0
+                }
+            ]
+        },
+        "expected": {
+            "cropStage": "Maturity & Ripening",
+            "waterStressLevel": "Medium",
+            "nextIrrigationInDays": 1,
+            "irrigationDurationHours": 1.4
+        }
+    },
+    {
+        "id": "field-capacity-moisture",
+        "description": "Near field capacity should avoid immediate irrigation",
+        "plot": {
+            "area": 1.5,
+            "plantingDate": "2025-08-01",
+            "soilType": "Sandy Loam"
+        },
+        "latestSensor": {
+            "soilMoisturePct": 22,
+            "soilTemp": 27
+        },
+        "forecast": {
+            "days": [
+                {
+                    "date": "2026-10-07",
+                    "tempMax": 31,
+                    "tempMin": 22,
+                    "humidity": 58,
+                    "rainProbability": 80,
+                    "rainMm": 12
+                },
+                {
+                    "date": "2026-10-08",
+                    "tempMax": 31,
+                    "tempMin": 22,
+                    "humidity": 58,
+                    "rainProbability": 65,
+                    "rainMm": 9
+                },
+                {
+                    "date": "2026-10-09",
+                    "tempMax": 31,
+                    "tempMin": 22,
+                    "humidity": 58,
+                    "rainProbability": 25,
+                    "rainMm": 0
+                }
+            ]
+        },
+        "expected": {
+            "waterStressLevel": "Low",
+            "nextIrrigationInDays": 3,
+            "rainfallNote": "Rain expected in the next 24 hours — irrigation can be delayed to avoid waterlogging."
+        }
+    },
+    {
+        "id": "sandy-soil-buffer",
+        "description": "Sandy soil requires a shorter irrigation window",
+        "plot": {
+            "area": 4,
+            "plantingDate": "2025-06-01",
+            "soilType": "Sandy"
+        },
+        "latestSensor": {
+            "soilMoisturePct": 12,
+            "soilTemp": 30
+        },
+        "forecast": {
+            "days": [
+                {
+                    "date": "2026-10-07",
+                    "tempMax": 33,
+                    "tempMin": 24,
+                    "humidity": 50,
+                    "rainProbability": 10,
+                    "rainMm": 0
+                },
+                {
+                    "date": "2026-10-08",
+                    "tempMax": 33,
+                    "tempMin": 24,
+                    "humidity": 50,
+                    "rainProbability": 20,
+                    "rainMm": 0
+                },
+                {
+                    "date": "2026-10-09",
+                    "tempMax": 33,
+                    "tempMin": 24,
+                    "humidity": 50,
+                    "rainProbability": 15,
+                    "rainMm": 0
+                }
+            ]
+        },
+        "expected": {
+            "waterStressLevel": "Medium",
+            "nextIrrigationInDays": 0,
+            "irrigationDurationHours": 0.5
+        }
+    },
+    {
+        "id": "near-saturation",
+        "description": "Very high moisture should delay irrigation",
+        "plot": {
+            "area": 2,
+            "plantingDate": "2025-04-01",
+            "soilType": "Clay"
+        },
+        "latestSensor": {
+            "soilMoisturePct": 80,
+            "soilTemp": 26
+        },
+        "forecast": {
+            "days": [
+                {
+                    "date": "2026-10-07",
+                    "tempMax": 28,
+                    "tempMin": 21,
+                    "humidity": 70,
+                    "rainProbability": 10,
+                    "rainMm": 0
+                },
+                {
+                    "date": "2026-10-08",
+                    "tempMax": 28,
+                    "tempMin": 21,
+                    "humidity": 70,
+                    "rainProbability": 15,
+                    "rainMm": 0
+                },
+                {
+                    "date": "2026-10-09",
+                    "tempMax": 28,
+                    "tempMin": 21,
+                    "humidity": 70,
+                    "rainProbability": 20,
+                    "rainMm": 0
+                }
+            ]
+        },
+        "expected": {
+            "waterStressLevel": "Low",
+            "nextIrrigationInDays": 5,
+            "netIrrigationRequirementMm": 0
+        }
+    }
+]

@@ -1,0 +1,39 @@
+[
+    {
+        "id": "login-and-create-plot",
+        "keywords": [
+            "LoginUser",
+            "CreatePlot",
+            "VerifyWeatherSource",
+            "CalculateAdvisory",
+            "GenerateRecommendation",
+            "CheckRecommendation",
+            "DisplayDashboard"
+        ],
+        "expectedResult": "success"
+    },
+    {
+        "id": "update-and-delete-plot",
+        "keywords": [
+            "LoginUser",
+            "CreatePlot",
+            "UpdatePlot",
+            "ValidateSensorData",
+            "CalculateAdvisory",
+            "GenerateAlert",
+            "DeletePlot"
+        ],
+        "expectedResult": "success"
+    },
+    {
+        "id": "invalid-sensor-rejection",
+        "keywords": [
+            "LoginUser",
+            "CreatePlot",
+            "EnterSensorData",
+            "ValidateSensorData",
+            "GenerateAlert"
+        ],
+        "expectedResult": "rejected"
+    }
+]

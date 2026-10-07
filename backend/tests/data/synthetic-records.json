@@ -1,0 +1,114 @@
+[
+    {
+        "id": "valid-soil-moisture",
+        "description": "Valid 30cm soil moisture reading",
+        "record": {
+            "measuredAt": "2026-10-07T10:00:00.000Z",
+            "measurements": [
+                {
+                    "type": "soil_moisture_30",
+                    "value": 42,
+                    "unit": "percent"
+                },
+                {
+                    "type": "soil_temperature",
+                    "value": 28.5,
+                    "unit": "C"
+                }
+            ]
+        },
+        "expected": {
+            "accept": true
+        }
+    },
+    {
+        "id": "valid-rainfall-and-humidity",
+        "description": "Sat isothermal rainfall and humidity reading",
+        "record": {
+            "measuredAt": "2026-10-07T10:00:00.000Z",
+            "measurements": [
+                {
+                    "type": "rainfall",
+                    "value": 8.5,
+                    "unit": "mm"
+                },
+                {
+                    "type": "humidity",
+                    "value": 64,
+                    "unit": "percent"
+                }
+            ]
+        },
+        "expected": {
+            "accept": true
+        }
+    },
+    {
+        "id": "boundary-low-moisture",
+        "description": "Boundary value at zero percent",
+        "record": {
+            "measuredAt": "2026-10-07T10:00:00.000Z",
+            "measurements": [
+                {
+                    "type": "soil_moisture_30",
+                    "value": 0,
+                    "unit": "percent"
+                }
+            ]
+        },
+        "expected": {
+            "accept": true
+        }
+    },
+    {
+        "id": "boundary-high-moisture",
+        "description": "Boundary value at 100 percent",
+        "record": {
+            "measuredAt": "2026-10-07T10:00:00.000Z",
+            "measurements": [
+                {
+                    "type": "soil_moisture_30",
+                    "value": 100,
+                    "unit": "percent"
+                }
+            ]
+        },
+        "expected": {
+            "accept": true
+        }
+    },
+    {
+        "id": "invalid-unit",
+        "description": "Sensor value uses the wrong unit",
+        "record": {
+            "measuredAt": "2026-10-07T10:00:00.000Z",
+            "measurements": [
+                {
+                    "type": "soil_moisture_30",
+                    "value": 42,
+                    "unit": "C"
+                }
+            ]
+        },
+        "expected": {
+            "accept": false
+        }
+    },
+    {
+        "id": "out-of-range-humidity",
+        "description": "Humidity exceeds the accepted range",
+        "record": {
+            "measuredAt": "2026-10-07T10:00:00.000Z",
+            "measurements": [
+                {
+                    "type": "humidity",
+                    "value": 120,
+                    "unit": "percent"
+                }
+            ]
+        },
+        "expected": {
+            "accept": false
+        }
+    }
+]
