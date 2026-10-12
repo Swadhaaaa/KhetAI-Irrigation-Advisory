@@ -2,9 +2,6 @@
 
 KhetAI is a software decision-support application for sugarcane cultivation. It combines plot parameters, soil telemetry, localized weather forecasts, and transparent FAO-56 agronomic calculations to deliver precise irrigation, fertigation, and yield guidance.
 
-> **Project Operational Status**: KhetAI is **PROJECT DEMO-READY** for software assessments and technical demonstrations. Physical IoT hardware is not connected (telemetry is simulated), and the ML layer is experimental. The primary recommendation engine is governed by the FAO-56 Agronomic Baseline.
-
----
 
 ## Key Features
 
