@@ -15,20 +15,33 @@ router.get("/summary", asyncHandler(async (req, res) => {
   let stressSum = 0;
   const perPlot = [];
 
-  for (const plot of plots) {
-    const { advisory } = await buildAdvisory(plot);
-    totalArea += plot.area;
-    totalWaterM3 += advisory.waterVolumeM3;
-    stressSum += advisory.waterStressProbability;
-    perPlot.push({
-      id: plot.id,
-      name: plot.name,
-      area: plot.area,
-      soilMoisturePct: advisory.soilMoisturePct,
-      waterStressLevel: advisory.waterStressLevel,
-      nextIrrigationDate: advisory.nextIrrigationDate,
-      cropStage: advisory.cropStage,
-    });
+  // Evaluate a few plots concurrently. The former sequential loop waited for
+  // each plot's weather lookup in turn, delaying the whole dashboard summary.
+  for (let start = 0; start < plots.length; start += 4) {
+    const batch = await Promise.all(plots.slice(start, start + 4).map(async (plot) => {
+      const { advisory } = await buildAdvisory(plot);
+      return {
+        area: plot.area,
+        waterVolumeM3: advisory.waterVolumeM3,
+        waterStressProbability: advisory.waterStressProbability,
+        summary: {
+          id: plot.id,
+          name: plot.name,
+          area: plot.area,
+          soilMoisturePct: advisory.soilMoisturePct,
+          waterStressLevel: advisory.waterStressLevel,
+          nextIrrigationDate: advisory.nextIrrigationDate,
+          cropStage: advisory.cropStage,
+        },
+      };
+    }));
+
+    for (const item of batch) {
+      totalArea += item.area;
+      totalWaterM3 += item.waterVolumeM3;
+      stressSum += item.waterStressProbability;
+      perPlot.push(item.summary);
+    }
   }
 
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

@@ -21,6 +21,14 @@ const loginSchema = z.object({
     password: z.string().min(1).max(128),
 });
 
+const profileUpdateSchema = z.object({
+    name: z.string().trim().min(1).max(120),
+    mobile: z.string().trim().regex(/^\d{10,15}$/, "Mobile number must contain 10 to 15 digits."),
+    village: z.string().trim().max(120).optional().default(""),
+    taluk: z.string().trim().max(120).optional().default(""),
+    district: z.string().trim().max(120).optional().default(""),
+});
+
 const plotSchema = z.object({
     name: z.string().trim().min(1).max(160),
     area: z.coerce.number().finite().positive().max(100000),
@@ -73,6 +81,7 @@ function validateBody(schema) {
 module.exports = {
     registrationSchema,
     loginSchema,
+    profileUpdateSchema,
     plotSchema,
     plotUpdateSchema,
     irrigationLogSchema,

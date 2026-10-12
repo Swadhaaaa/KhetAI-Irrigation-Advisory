@@ -30,7 +30,14 @@ const allowedOrigins = (process.env.CORS_ORIGINS || "")
   .filter(Boolean);
 
 app.set("trust proxy", 1);
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      "script-src": ["'self'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
+      "img-src": ["'self'", "data:", "https://unpkg.com", "https://*.tile.openstreetmap.org"],
+    },
+  },
+}));
 app.use(cors({
   origin(origin, callback) {
     if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {

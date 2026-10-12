@@ -15,6 +15,7 @@ router.get("/:plotId", asyncHandler(async (req, res) => {
   }
   const plot = plotResponse(record);
   const latest = await ensureTodayReading(plot);
+  const pagination = parsePagination(req.query, { defaultLimit: 14, maxLimit: 100 });
   const historyOptions = {
     ...pagination,
     ...(req.query.quality ? { quality: String(req.query.quality).toUpperCase() } : {}),

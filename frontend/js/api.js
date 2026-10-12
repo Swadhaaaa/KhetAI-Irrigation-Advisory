@@ -38,7 +38,10 @@ async function apiRequest(path, { method = "GET", body, auth = true } = {}) {
   }
 
   if (!res.ok) {
-    const message = (data && data.error) || (res.status === 404
+    const details = data && Array.isArray(data.details)
+      ? data.details.map((detail) => detail.message).filter(Boolean).join(" ")
+      : "";
+    const message = [data && data.error, details].filter(Boolean).join(" ") || (res.status === 404
       ? "Backend API not found. Check the deployed backend URL."
       : `Request failed (${res.status})`);
     throw new Error(message);
@@ -50,6 +53,7 @@ const api = {
   register: (payload) => apiRequest("/auth/register", { method: "POST", body: payload, auth: false }),
   login: (payload) => apiRequest("/auth/login", { method: "POST", body: payload, auth: false }),
   me: () => apiRequest("/auth/me"),
+  updateProfile: (payload) => apiRequest("/auth/me", { method: "PATCH", body: payload }),
 
   listPlots: () => apiRequest("/plots"),
   createPlot: (payload) => apiRequest("/plots", { method: "POST", body: payload }),

@@ -2,9 +2,9 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { requireAuth } = require("../middleware/auth");
-const { validateBody, registrationSchema, loginSchema } = require("../utils/validation");
+const { validateBody, registrationSchema, loginSchema, profileUpdateSchema } = require("../utils/validation");
 const { asyncHandler } = require("../middleware/asyncHandler");
-const { findUserById, findUserByMobile, createUser } = require("../repositories/postgres.repository");
+const { findUserById, findUserByMobile, createUser, updateUserProfile } = require("../repositories/postgres.repository");
 
 const router = express.Router();
 
@@ -57,6 +57,17 @@ router.post("/login", validateBody(loginSchema), asyncHandler(async (req, res) =
 router.get("/me", requireAuth, asyncHandler(async (req, res) => {
   const user = await findUserById(req.user.id);
   if (!user || !user.isActive) return res.status(404).json({ error: "User not found." });
+  res.json({ user: publicUser(user) });
+}));
+
+router.patch("/me", requireAuth, validateBody(profileUpdateSchema), asyncHandler(async (req, res) => {
+  const { name, mobile, village, taluk, district } = req.body;
+  const existing = await findUserByMobile(mobile);
+  if (existing && existing.id !== req.user.id) {
+    return res.status(409).json({ error: "An account with this mobile number already exists." });
+  }
+
+  const user = await updateUserProfile(req.user.id, { name, mobile, village, taluk, district });
   res.json({ user: publicUser(user) });
 }));
 

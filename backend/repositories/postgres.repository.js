@@ -224,6 +224,19 @@ async function findUserByMobile(mobile) {
     return prisma().user.findUnique({ where: { mobile } });
 }
 
+async function updateUserProfile(id, data) {
+    return prisma().user.update({
+        where: { id },
+        data: {
+            name: data.name,
+            mobile: data.mobile,
+            village: data.village || null,
+            taluk: data.taluk || null,
+            district: data.district || null,
+        },
+    });
+}
+
 async function createUser(data) {
     return prisma().$transaction(async (tx) => tx.user.create({
         data: {
@@ -680,6 +693,7 @@ module.exports = {
     findUserById,
     findUserByMobile,
     createUser,
+    updateUserProfile,
     findLatestReading,
     findReadingForDay,
     listSensorReadings,

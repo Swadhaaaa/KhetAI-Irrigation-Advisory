@@ -9,6 +9,29 @@ const state = {
   leafletMap: null,
 };
 
+const externalLibraryLoads = new Map();
+
+function loadExternalLibrary(globalName, src) {
+  if (window[globalName]) return Promise.resolve(window[globalName]);
+  if (!externalLibraryLoads.has(globalName)) {
+    const promise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.async = true;
+      script.onload = () => window[globalName]
+        ? resolve(window[globalName])
+        : reject(new Error(`The ${globalName} library did not initialize.`));
+      script.onerror = () => reject(new Error(`Could not load the ${globalName} library.`));
+      document.head.appendChild(script);
+    }).catch((error) => {
+      externalLibraryLoads.delete(globalName);
+      throw error;
+    });
+    externalLibraryLoads.set(globalName, promise);
+  }
+  return externalLibraryLoads.get(globalName);
+}
+
 const CHART_COLORS = {
   green: "#1f4d3d",
   gold: "#c98a2c",
@@ -103,6 +126,72 @@ const UI_TRANSLATIONS = {
   },
 };
 
+const OVERVIEW_COPY = {
+  en: {
+    area: "Total area managed", stress: "Average water stress", water: "Water needed now", events: "Irrigation events (30 days)",
+    needsAttention: "Needs attention", withinRange: "Within range", allPlots: "Across all plots", applied: "applied",
+    plotCountOne: "plot", plotCountMany: "plots", acres: "acres", plot: "Plot", stage: "Crop stage", stressColumn: "Water stress",
+    moistureSeries: "Soil moisture (30cm) %", low: "Low", medium: "Medium", high: "High", hours: "hrs", tonnesHa: "t/ha",
+    today: "Today", unknown: "Unknown", brandSubtitle: "IRRIGATION ADVISORY",
+    germination: "Germination & Establishment", tillering: "Tillering", grandGrowth: "Grand Growth", maturity: "Maturity & Ripening",
+  },
+  hi: {
+    area: "कुल खेती का क्षेत्र", stress: "औसत पानी का तनाव", water: "अभी पानी की ज़रूरत", events: "पिछले 30 दिनों में सिंचाई",
+    needsAttention: "ध्यान दें", withinRange: "सामान्य सीमा में", allPlots: "सभी खेतों के लिए", applied: "पानी दिया",
+    plotCountOne: "खेत", plotCountMany: "खेत", acres: "एकड़", plot: "खेत", stage: "फसल की अवस्था", stressColumn: "पानी का तनाव",
+    moistureSeries: "मिट्टी की नमी (30 सेमी) %", low: "कम", medium: "मध्यम", high: "ज़्यादा", hours: "घंटे", tonnesHa: "टन/हेक्टेयर",
+    today: "आज", unknown: "अज्ञात", brandSubtitle: "सिंचाई सलाह",
+    germination: "अंकुरण और स्थापना", tillering: "फुटाव की अवस्था", grandGrowth: "तेज़ बढ़वार", maturity: "पकने की अवस्था",
+  },
+  kn: {
+    area: "ಒಟ್ಟು ಕೃಷಿ ಪ್ರದೇಶ", stress: "ಸರಾಸರಿ ನೀರಿನ ಒತ್ತಡ", water: "ಈಗ ಬೇಕಾದ ನೀರು", events: "ಕಳೆದ 30 ದಿನಗಳ ನೀರಾವರಿ",
+    needsAttention: "ಗಮನ ಅಗತ್ಯ", withinRange: "ಸಾಮಾನ್ಯ ಮಿತಿಯಲ್ಲಿ", allPlots: "ಎಲ್ಲಾ ಹೊಲಗಳಿಗೆ", applied: "ನೀರು ನೀಡಲಾಗಿದೆ",
+    plotCountOne: "ಹೊಲ", plotCountMany: "ಹೊಲಗಳು", acres: "ಎಕರೆ", plot: "ಹೊಲ", stage: "ಬೆಳೆಯ ಹಂತ", stressColumn: "ನೀರಿನ ಒತ್ತಡ",
+    moistureSeries: "ಮಣ್ಣಿನ ತೇವಾಂಶ (30 ಸೆಂ.ಮೀ) %", low: "ಕಡಿಮೆ", medium: "ಮಧ್ಯಮ", high: "ಹೆಚ್ಚು", hours: "ಗಂಟೆ", tonnesHa: "ಟನ್/ಹೆಕ್ಟೇರ್",
+    today: "ಇಂದು", unknown: "ತಿಳಿದಿಲ್ಲ", brandSubtitle: "ನೀರಾವರಿ ಸಲಹೆ",
+    germination: "ಮೊಳಕೆ ಮತ್ತು ಆರಂಭಿಕ ಬೆಳವಣಿಗೆ", tillering: "ಕವಲು ಬಿಡುವ ಹಂತ", grandGrowth: "ತೀವ್ರ ಬೆಳವಣಿಗೆ", maturity: "ಪಕ್ವ ಹಂತ",
+  },
+  mr: {
+    area: "एकूण शेती क्षेत्र", stress: "पाण्याचा सरासरी ताण", water: "आत्ताची पाण्याची गरज", events: "मागील ३० दिवसांतील सिंचन",
+    needsAttention: "लक्ष द्या", withinRange: "योग्य मर्यादेत", allPlots: "सर्व शेतांसाठी", applied: "पाणी दिले",
+    plotCountOne: "शेत", plotCountMany: "शेतजमिनी", acres: "एकर", plot: "शेत", stage: "पिकाची अवस्था", stressColumn: "पाण्याचा ताण",
+    moistureSeries: "मातीतील ओलावा (३० सेमी) %", low: "कमी", medium: "मध्यम", high: "जास्त", hours: "तास", tonnesHa: "टन/हेक्टर",
+    today: "आज", unknown: "अज्ञात", brandSubtitle: "सिंचन सल्ला",
+    germination: "उगवण व सुरुवातीची वाढ", tillering: "फुटवे येण्याची अवस्था", grandGrowth: "जोरदार वाढ", maturity: "परिपक्वतेची अवस्था",
+  },
+};
+
+function overviewText(key) {
+  const language = OVERVIEW_COPY[state.lang] || OVERVIEW_COPY.en;
+  return language[key] || OVERVIEW_COPY.en[key] || key;
+}
+
+function formatOverviewNumber(value, digits = 1) {
+  return Number(value).toLocaleString(state.lang, { maximumFractionDigits: digits });
+}
+
+function formatOverviewDate(dateValue) {
+  if (!dateValue) return overviewText("unknown");
+  const date = new Date(`${String(dateValue).slice(0, 10)}T12:00:00`);
+  return Number.isNaN(date.getTime())
+    ? String(dateValue)
+    : new Intl.DateTimeFormat(state.lang, { year: "numeric", month: "short", day: "numeric" }).format(date);
+}
+
+function localizeCropStage(stage) {
+  const normalized = String(stage || "").toLowerCase();
+  if (normalized.includes("germination")) return overviewText("germination");
+  if (normalized.includes("tillering")) return overviewText("tillering");
+  if (normalized.includes("grand growth")) return overviewText("grandGrowth");
+  if (normalized.includes("maturity") || normalized.includes("ripening")) return overviewText("maturity");
+  return overviewText("unknown");
+}
+
+function localizeStress(level) {
+  const key = { Low: "low", Medium: "medium", High: "high" }[level];
+  return key ? overviewText(key) : overviewText("unknown");
+}
+
 function applyLanguage() {
   const lang = UI_TRANSLATIONS[state.lang] ? state.lang : "en";
   state.lang = lang;
@@ -110,6 +199,12 @@ function applyLanguage() {
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     const value = UI_TRANSLATIONS[lang][element.dataset.i18n] || UI_TRANSLATIONS.en[element.dataset.i18n];
     if (value) element.textContent = value;
+  });
+  const brandSubtitle = document.getElementById("brand-subtitle");
+  if (brandSubtitle) brandSubtitle.textContent = overviewText("brandSubtitle");
+  const overviewHeaders = document.querySelectorAll("#overview-plots-table thead th");
+  ["plot", "stage", "stressColumn"].forEach((key, index) => {
+    if (overviewHeaders[index]) overviewHeaders[index].textContent = overviewText(key);
   });
 }
 
@@ -120,6 +215,19 @@ async function init() {
   applyLanguage();
   state.user = Auth.getUser();
   renderSidebarUser();
+
+  document.getElementById("lang-select").value = state.lang;
+  bindNav();
+  bindTopbar();
+  bindPlotModal();
+  bindForms();
+  bindSettings();
+  bindAdvisoryControls();
+
+  // New accounts should be able to start entering their first plot at once,
+  // even while the initial plots request is still in flight.
+  const onboarding = new URLSearchParams(window.location.search).get("onboarding") === "1";
+  if (onboarding) openPlotModal();
 
   try {
     const { plots } = await api.listPlots();
@@ -136,15 +244,6 @@ async function init() {
   } else {
     state.currentPlotId = state.plots[0].id;
   }
-
-  document.getElementById("lang-select").value = state.lang;
-
-  bindNav();
-  bindTopbar();
-  bindPlotModal();
-  bindForms();
-  bindSettings();
-  bindAdvisoryControls();
 
   await loadView("overview");
 }
@@ -201,6 +300,19 @@ function bindNav() {
     e.preventDefault();
     Auth.clear();
     window.location.href = "index.html";
+  });
+
+  document.getElementById("plots-grid").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-plot-action]");
+    if (!button) return;
+    const { plotAction, plotId } = button.dataset;
+    if (plotAction === "view") selectPlotAndGo(plotId, "advisory");
+    if (plotAction === "remove") deletePlotConfirm(plotId);
+  });
+
+  document.getElementById("alerts-list").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-alert-read]");
+    if (button) markRead(button.dataset.alertRead);
   });
 }
 
@@ -299,57 +411,56 @@ function bindPlotModal() {
 // ---------------------------------------------------------------------------
 async function renderOverview() {
   const plot = currentPlot();
-  const [summary, advisoryRes, yieldRes, sensorsRes] = await Promise.all([
-    api.getDashboardSummary(),
-    api.getAdvisory(plot.id, state.lang),
-    api.getYield(plot.id),
-    api.getSensors(plot.id),
-  ]);
-
-  const kpiHtml = [
-    { label: "Total area managed", value: `${summary.totalAreaAcres} ac`, delta: `${summary.plotCount} plot(s)`, cls: "flat" },
-    { label: "Avg. water stress", value: `${summary.avgWaterStressPct}%`, delta: summary.avgWaterStressPct >= 60 ? "Needs attention" : "Within range", cls: summary.avgWaterStressPct >= 60 ? "down" : "up" },
-    { label: "Water needed now", value: `${summary.estimatedWaterNeedM3} m³`, delta: "Across all plots", cls: "flat" },
-    { label: "Irrigation events (30d)", value: summary.irrigationEventsLast30Days, delta: `${summary.totalWaterAppliedLast30DaysM3} m³ applied`, cls: "flat" },
+  const requests = [
+    api.getDashboardSummary().then((summary) => {
+      const kpiHtml = [
+        { label: overviewText("area"), value: `${formatOverviewNumber(summary.totalAreaAcres)} ${overviewText("acres")}`, delta: `${formatOverviewNumber(summary.plotCount, 0)} ${overviewText(summary.plotCount === 1 ? "plotCountOne" : "plotCountMany")}`, cls: "flat" },
+        { label: overviewText("stress"), value: `${summary.avgWaterStressPct}%`, delta: summary.avgWaterStressPct >= 60 ? overviewText("needsAttention") : overviewText("withinRange"), cls: summary.avgWaterStressPct >= 60 ? "down" : "up" },
+        { label: overviewText("water"), value: `${formatOverviewNumber(summary.estimatedWaterNeedM3, 0)} m³`, delta: overviewText("allPlots"), cls: "flat" },
+        { label: overviewText("events"), value: formatOverviewNumber(summary.irrigationEventsLast30Days, 0), delta: `${formatOverviewNumber(summary.totalWaterAppliedLast30DaysM3, 0)} m³ ${overviewText("applied")}`, cls: "flat" },
+      ];
+      document.getElementById("overview-kpis").innerHTML = kpiHtml
+        .map((k) => `<div class="card kpi"><span class="label">${k.label}</span><b>${k.value}</b><span class="delta ${k.cls}">${k.delta}</span></div>`)
+        .join("");
+      document.querySelector("#overview-plots-table tbody").innerHTML = summary.plots
+        .map((p) => `<tr><td>${p.name}</td><td>${localizeCropStage(p.cropStage)}</td><td>${badgeForStress(p.waterStressLevel)}</td></tr>`)
+        .join("");
+      const headers = document.querySelectorAll("#overview-plots-table thead th");
+      ["plot", "stage", "stressColumn"].forEach((key, index) => {
+        if (headers[index]) headers[index].textContent = overviewText(key);
+      });
+    }),
+    api.getAdvisory(plot.id, state.lang).then((advisoryRes) => {
+      const advisory = advisoryRes.advisory;
+      document.getElementById("overview-plot-name").textContent = plot.name;
+      document.getElementById("overview-advisory-text").textContent = advisoryRes.farmerMessage;
+      document.getElementById("overview-next-date").textContent = advisory.nextIrrigationInDays <= 0 ? overviewText("today") : formatOverviewDate(advisory.nextIrrigationDate);
+      document.getElementById("overview-duration").textContent = `${formatOverviewNumber(advisory.irrigationDurationHours)} ${overviewText("hours")}`;
+      document.getElementById("overview-stress").textContent = `${localizeStress(advisory.waterStressLevel)} (${advisory.waterStressProbability}%)`;
+      document.getElementById("overview-gauge").innerHTML = renderGauge({
+        pct: advisory.soilMoisturePct, size: 130, stroke: 12, zones: [
+          { upTo: 33, color: "#e2b673" }, { upTo: 66, color: "#f0d9a6" }, { upTo: 100, color: "#f5efdd" },
+        ]
+      });
+    }),
+    api.getYield(plot.id).then(({ prediction }) => {
+      document.getElementById("overview-yield").textContent = `${formatOverviewNumber(prediction.predictedYieldTPerHa)} ${overviewText("tonnesHa")}`;
+    }),
+    api.getSensors(plot.id).then(({ history }) => {
+      drawLineChart("overview-moisture-chart", {
+        labels: history.map((h) => h.date.slice(5)),
+        datasets: [{ label: overviewText("moistureSeries"), data: history.map((h) => h.soilMoisture30), color: CHART_COLORS.green }],
+      });
+    }),
   ];
-  document.getElementById("overview-kpis").innerHTML = kpiHtml
-    .map(
-      (k) => `<div class="card kpi"><span class="label">${k.label}</span><b>${k.value}</b><span class="delta ${k.cls}">${k.delta}</span></div>`
-    )
-    .join("");
-
-  const advisory = advisoryRes.advisory;
-  document.getElementById("overview-plot-name").textContent = plot.name;
-  document.getElementById("overview-advisory-text").textContent = advisoryRes.farmerMessage;
-  document.getElementById("overview-next-date").textContent = advisory.nextIrrigationInDays <= 0 ? "Today" : advisory.nextIrrigationDate;
-  document.getElementById("overview-duration").textContent = `${advisory.irrigationDurationHours} hrs`;
-  document.getElementById("overview-stress").textContent = `${advisory.waterStressLevel} (${advisory.waterStressProbability}%)`;
-  document.getElementById("overview-yield").textContent = `${yieldRes.prediction.predictedYieldTPerHa} t/ha`;
-  document.getElementById("overview-gauge").innerHTML = renderGauge({
-    pct: advisory.soilMoisturePct, size: 130, stroke: 12, zones: [
-      { upTo: 33, color: "#e2b673" }, { upTo: 66, color: "#f0d9a6" }, { upTo: 100, color: "#f5efdd" },
-    ]
-  });
-
-  // Moisture trend chart
-  const history = sensorsRes.history;
-  drawLineChart("overview-moisture-chart", {
-    labels: history.map((h) => h.date.slice(5)),
-    datasets: [{ label: "Soil moisture (30cm) %", data: history.map((h) => h.soilMoisture30), color: CHART_COLORS.green }],
-  });
-
-  // Plots table
-  const tbody = document.querySelector("#overview-plots-table tbody");
-  tbody.innerHTML = summary.plots
-    .map(
-      (p) => `<tr><td>${p.name}</td><td>${p.cropStage}</td><td>${badgeForStress(p.waterStressLevel)}</td></tr>`
-    )
-    .join("");
+  const results = await Promise.allSettled(requests);
+  const failed = results.find((result) => result.status === "rejected");
+  if (failed) throw failed.reason;
 }
 
 function badgeForStress(level) {
   const cls = level === "High" ? "badge-high" : level === "Medium" ? "badge-medium" : "badge-low";
-  return `<span class="badge ${cls}">${level}</span>`;
+  return `<span class="badge ${cls}">${localizeStress(level)}</span>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -376,8 +487,8 @@ function renderPlotsGrid() {
         <span>Planted ${p.plantingDate}</span>
       </div>
       <div class="plot-actions">
-        <button class="btn btn-outline btn-sm" onclick="selectPlotAndGo('${p.id}','advisory')">View advisory</button>
-        <button class="btn btn-ghost btn-sm" onclick="deletePlotConfirm('${p.id}')">Remove</button>
+        <button class="btn btn-outline btn-sm" data-plot-action="view" data-plot-id="${p.id}">View advisory</button>
+        <button class="btn btn-ghost btn-sm" data-plot-action="remove" data-plot-id="${p.id}">Remove</button>
       </div>
     </div>`
     )
@@ -410,19 +521,31 @@ async function deletePlotConfirm(id) {
 // ---------------------------------------------------------------------------
 async function renderAdvisory() {
   const plot = currentPlot();
-  const [advisoryRes, { logs }, langs] = await Promise.all([
-    api.getAdvisory(plot.id, state.lang),
-    api.getIrrigationHistory(plot.id),
-    api.getAdvisoryLanguages(),
-  ]);
+  document.getElementById("advisory-plot-name").textContent = plot.name;
+  document.getElementById("advisory-farmer-text").textContent = "Checking your soil reading and local weather…";
+  let advisoryRes;
+  try {
+    advisoryRes = await api.getAdvisory(plot.id, state.lang);
+  } catch (error) {
+    document.getElementById("advisory-farmer-text").textContent = "We couldn't load the plan just now. Please try again.";
+    throw error;
+  }
 
   const { advisory, farmerMessage, decisionBadge, trustIndicators, technicalDetails, explanationBullets } = advisoryRes;
 
   // Decision badge
   const badgeEl = document.getElementById("advisory-decision-badge");
-  if (badgeEl && decisionBadge) {
-    badgeEl.textContent = decisionBadge.label || decisionBadge.code;
-    badgeEl.className = `decision-badge ${decisionBadge.code}`;
+  const decisionCode = typeof decisionBadge === "string" ? decisionBadge : decisionBadge?.code;
+  const decisionLabels = {
+    IRRIGATE_NOW: "Water today",
+    IRRIGATE_SOON: "Water soon",
+    MONITOR: "Check again soon",
+    NO_IRRIGATION: "No watering needed now",
+    INSUFFICIENT_DATA: "Need a fresh reading",
+  };
+  if (badgeEl && decisionCode) {
+    badgeEl.textContent = decisionLabels[decisionCode] || decisionCode.replaceAll("_", " ");
+    badgeEl.className = `decision-badge ${decisionCode}`;
   }
 
   // Warning banner
@@ -430,10 +553,10 @@ async function renderAdvisory() {
   if (warnBanner) {
     const warnings = [];
     if (technicalDetails && technicalDetails.dataQualityStatus !== "VALID") {
-      warnings.push(`Data Quality Notice: Telemetry data quality is flagged as ${technicalDetails.dataQualityStatus}. Recommendations may be restricted or default to fallback monitoring.`);
+      warnings.push(`The latest soil reading may not be reliable (${technicalDetails.dataQualityStatus}). Please check the soil before watering.`);
     }
-    if (decisionBadge && decisionBadge.code === "INSUFFICIENT_DATA") {
-      warnings.push(`Insufficient Data: Unable to calculate advisory safely due to missing or suspect sensor telemetry.`);
+    if (decisionCode === "INSUFFICIENT_DATA") {
+      warnings.push("We could not make a safe watering plan because a recent soil reading is missing. Please check the soil and try again.");
     }
     if (warnings.length > 0) {
       warnBanner.style.display = "block";
@@ -447,7 +570,7 @@ async function renderAdvisory() {
   document.getElementById("advisory-farmer-text").textContent = farmerMessage;
 
   const shouldEl = document.getElementById("advisory-should");
-  if (shouldEl) shouldEl.textContent = decisionBadge ? (decisionBadge.label || decisionBadge.code) : "MONITOR";
+  if (shouldEl) shouldEl.textContent = decisionLabels[decisionCode] || decisionCode || "Check again soon";
 
   const whenEl = document.getElementById("advisory-when");
   if (whenEl) {
@@ -473,16 +596,21 @@ async function renderAdvisory() {
   if (trustBar && trustIndicators) {
     const isLiveWeather = trustIndicators.weatherProvenance === "LIVE_API";
     trustBar.innerHTML = `
-      <span class="trust-badge">Sensor data: ${trustIndicators.sensorProvenance === "SIMULATED" ? "Simulated demo data" : "Physical sensor"}</span>
-      <span class="trust-badge ${isLiveWeather ? "weather-live" : ""}">Weather: ${isLiveWeather ? "Live weather forecast" : "Cached / Fallback weather"}</span>
-      <span class="trust-badge">Decision engine: ${trustIndicators.engineLabel || "Agronomic calculation"}</span>
+      <span class="trust-badge">Soil readings: ${trustIndicators.sensorProvenance === "SIMULATED" ? "Demo estimates" : "Sensor readings"}</span>
+      <span class="trust-badge ${isLiveWeather ? "weather-live" : ""}">Weather: ${isLiveWeather ? "Local forecast" : "Saved forecast"}</span>
+      <span class="trust-badge">Advice based on crop and soil conditions</span>
     `;
   }
 
-  // Explanation bullets
+  // Keep the explanation farmer-facing; formulas and source labels live below.
   const expList = document.getElementById("advisory-explanation-list");
-  if (expList && explanationBullets && explanationBullets.length > 0) {
-    expList.innerHTML = explanationBullets.map((b) => `<li>${b}</li>`).join("");
+  if (expList) {
+    const why = [
+      `The soil reading is ${advisory.soilMoisturePct}% and the soil can hold about ${advisory.fieldCapacityPct}% when full.`,
+      advisory.rainfallNote || "The forecast does not show enough rain soon to replace the water the crop is using.",
+      `Your sugarcane is in the ${advisory.cropStage} stage, so the plan accounts for its current growth.`,
+    ];
+    expList.innerHTML = why.map((line) => `<li>${line}</li>`).join("");
   }
 
   // Technical details panel
@@ -495,114 +623,35 @@ async function renderAdvisory() {
     if (document.getElementById("tech-timestamp")) document.getElementById("tech-timestamp").textContent = technicalDetails.calculatedAt ? new Date(technicalDetails.calculatedAt).toLocaleString() : "—";
   }
 
-  // Populate ML status & Experimental ML Analysis panel dynamically
-  try {
-    const [mlRes, mlPredRes] = await Promise.all([
-      api.getMlStatus().catch(() => null),
-      api.getMlPrediction(plot.id).catch(() => null),
-    ]);
-
-    if (mlRes && mlRes.data) {
-      if (document.getElementById("tech-ml-status")) document.getElementById("tech-ml-status").textContent = mlRes.data.status || "INSUFFICIENT_HISTORICAL_DATA";
-      if (document.getElementById("tech-ml-version")) document.getElementById("tech-ml-version").textContent = mlRes.data.modelVersion || "experimental-v1";
-      if (document.getElementById("tech-ml-reason")) document.getElementById("tech-ml-reason").textContent = mlRes.data.reason || "Requires physical IoT hardware dataset.";
-    }
-
-    if (mlPredRes && mlPredRes.data && mlPredRes.data.mlExperimentation) {
-      const mlExp = mlPredRes.data.mlExperimentation;
-      const prov = mlPredRes.data.provenance || {};
-      const pred = mlExp.prediction || {};
-
-      if (document.getElementById("ml-status-badge")) {
-        document.getElementById("ml-status-badge").textContent = mlExp.mlStatus || "EXPERIMENTAL_MODEL_TRAINED";
-      }
-      if (document.getElementById("ml-algorithm")) {
-        document.getElementById("ml-algorithm").textContent = mlExp.algorithm || (mlExp.model && mlExp.model.algorithm) || "Linear Regression";
-      }
-      if (document.getElementById("ml-version")) {
-        document.getElementById("ml-version").textContent = mlExp.modelVersion || (mlExp.model && mlExp.model.version) || "sugarcane-irrigation-v1";
-      }
-      if (document.getElementById("ml-prediction-val")) {
-        const numVal = pred.value ?? pred.predictedWaterLitersPerDay;
-        document.getElementById("ml-prediction-val").textContent = numVal
-          ? `Experimental ML estimate: ${numVal.toLocaleString()} L/day (external dataset scale)`
-          : "ML: Unavailable";
-      }
-      if (document.getElementById("ml-unit-scale")) {
-        document.getElementById("ml-unit-scale").textContent = `${mlExp.unit || "LITERS_PER_DAY_DATASET_SCALE"} (Not directly comparable to KhetAI plot water volume)`;
-      }
-      if (document.getElementById("ml-comparability")) {
-        document.getElementById("ml-comparability").textContent = mlExp.comparability || "NOT_DIRECTLY_COMPARABLE";
-      }
-      if (document.getElementById("ml-dataset-source")) {
-        document.getElementById("ml-dataset-source").textContent = (mlExp.dataset && mlExp.dataset.source) || "External Sugarcane Research Dataset (Zenodo DOI: 10.5281/zenodo.19725692)";
-      }
-      if (document.getElementById("ml-dataset-origin")) {
-        document.getElementById("ml-dataset-origin").textContent = (mlExp.dataset && mlExp.dataset.origin) || "MODEL_SIMULATED (CatBoost pipeline)";
-      }
-      if (document.getElementById("ml-r2-original")) {
-        const origR2 = mlExp.metrics ? mlExp.metrics.originalScaleR2 : 0.8507;
-        document.getElementById("ml-r2-original").textContent = `${origR2} (held-out test set R²)`;
-      }
-      if (document.getElementById("ml-r2-log")) {
-        const logR2 = mlExp.metrics ? mlExp.metrics.logScaleR2 : 0.9421;
-        document.getElementById("ml-r2-log").textContent = `${logR2} (held-out test set R²)`;
-      }
-      if (document.getElementById("ml-prov-sensor")) {
-        document.getElementById("ml-prov-sensor").textContent = prov.sensor === "SIMULATED" ? "Simulated demo telemetry" : prov.sensor;
-      }
-      if (document.getElementById("ml-prov-weather")) {
-        document.getElementById("ml-prov-weather").textContent = prov.weather === "LIVE_API" ? "Live Open-Meteo API" : "Cached / Fallback weather";
-      }
-    } else {
-      if (document.getElementById("ml-prediction-val")) document.getElementById("ml-prediction-val").textContent = "ML: Unavailable";
-      if (document.getElementById("ml-status-badge")) document.getElementById("ml-status-badge").textContent = "UNAVAILABLE";
-    }
-  } catch (e) {
-    if (document.getElementById("ml-prediction-val")) document.getElementById("ml-prediction-val").textContent = "ML: Unavailable";
-    if (document.getElementById("ml-status-badge")) document.getElementById("ml-status-badge").textContent = "UNAVAILABLE";
-  }
-
-  document.getElementById("advisory-lang-strip").innerHTML = langs.languages
-    .map((l) => `<span class="lang-chip ${l.code === state.lang ? "active" : ""}" onclick="setLangAndReload('${l.code}')">${l.label}</span>`)
-    .join("");
-
   const rows = [
-    ["Crop age", `${advisory.cropAgeMonths} months`],
-    ["Crop coefficient (Kc)", advisory.kc],
-    ["Reference ET₀", `${advisory.et0MmPerDay} mm/day`],
-    ["Field capacity", `${advisory.fieldCapacityPct}%`],
+    ["Soil type", plot.soilType],
     ["Current soil moisture", `${advisory.soilMoisturePct}%`],
-    ["Depletion vs. field capacity", `${advisory.depletionPct}%`],
-    ["Net irrigation requirement", `${advisory.netIrrigationRequirementMm} mm`],
+    ["Soil moisture when full", `${advisory.fieldCapacityPct}%`],
+    ["Crop growth stage", advisory.cropStage],
+    ["Water used by crop each day", `${advisory.cropWaterRequirementMmPerDay} mm`],
   ];
   document.querySelector("#advisory-breakdown-table tbody").innerHTML = rows
-    .map(([k, v]) => `<tr><td>${k}</td><td style="text-align:right; font-family:var(--font-mono);">${v}</td></tr>`)
+    .map(([k, v]) => `<tr><td>${k}</td><td style="text-align:right;">${v ?? "—"}</td></tr>`)
     .join("");
 
-  document.querySelector("#irrigation-history-table tbody").innerHTML = logs.length
-    ? logs.slice(0, 8).map((l) => `<tr><td>${l.date}</td><td>${l.durationHours} hrs</td><td>${l.waterAppliedM3}</td></tr>`).join("")
-    : `<tr><td colspan="3" style="color:var(--ink-soft)">No irrigation logged yet.</td></tr>`;
+  // The main recommendation is ready now. Load history and language controls
+  // in the background so they cannot delay it.
+  Promise.all([api.getIrrigationHistory(plot.id), api.getAdvisoryLanguages()])
+    .then(([{ logs }, langs]) => {
+      document.getElementById("advisory-lang-strip").innerHTML = langs.languages
+        .map((l) => `<button type="button" class="lang-chip ${l.code === state.lang ? "active" : ""}" data-advisory-lang="${l.code}">${l.label}</button>`)
+        .join("");
+      document.querySelector("#irrigation-history-table tbody").innerHTML = logs.length
+        ? logs.slice(0, 8).map((l) => `<tr><td>${l.date}</td><td>${l.durationHours} hrs</td><td>${l.waterAppliedM3}</td></tr>`).join("")
+        : `<tr><td colspan="3" style="color:var(--ink-soft)">No irrigation logged yet.</td></tr>`;
+    })
+    .catch(() => {});
 }
 
 function bindAdvisoryControls() {
-  document.querySelectorAll(".btn-scenario").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const scenario = btn.dataset.scenario;
-      const plot = currentPlot();
-      if (!plot) return;
-
-      document.querySelectorAll(".btn-scenario").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      try {
-        const res = await api.triggerScenario(plot.id, scenario);
-        showToast(`Scenario triggered: ${res.scenarioLabel}`, "success");
-        await renderAdvisory();
-      } catch (err) {
-        showToast(`Failed to trigger scenario: ${err.message}`, "error");
-      }
-    });
+  document.getElementById("advisory-lang-strip").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-advisory-lang]");
+    if (button) setLangAndReload(button.dataset.advisoryLang);
   });
 
   const toggleBtn = document.getElementById("technical-panel-toggle");
@@ -646,6 +695,16 @@ function bindForms() {
 // ---------------------------------------------------------------------------
 async function renderWeather() {
   const plot = currentPlot();
+  const mapEl = document.getElementById("weather-map");
+  if (!window.L) {
+    mapEl.textContent = "Loading map...";
+    try {
+      await loadExternalLibrary("L", "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
+    } catch (error) {
+      mapEl.textContent = "The map could not be loaded. Your forecast is still available above.";
+      throw error;
+    }
+  }
   const forecast = await api.getWeather(plot.id);
   const source = forecast.days[0]?.source === "open-meteo" ? "Live data from Open-Meteo" : "Simulated forecast (offline fallback)";
   document.getElementById("weather-source-note").textContent = source;
@@ -784,7 +843,7 @@ async function renderAlerts() {
         <div>${a.message}</div>
         <div class="meta">${a.date}</div>
       </div>
-      ${!a.read ? `<button class="btn btn-ghost btn-sm" onclick="markRead('${a.id}')">Mark read</button>` : ""}
+      ${!a.read ? `<button class="btn btn-ghost btn-sm" data-alert-read="${a.id}">Mark read</button>` : ""}
     </div>`
     )
     .join("");
@@ -826,7 +885,48 @@ function bindSettings() {
   ["plain-language-toggle", "irrigation-notifications", "rain-notifications", "sensor-notifications"].forEach((id) => {
     document.getElementById(id).addEventListener("change", (e) => localStorage.setItem(`khet_${id}`, e.target.checked));
   });
-  document.getElementById("edit-profile-btn").addEventListener("click", () => showToast("Profile editing will be available in a future update."));
+  const profileEditWrap = document.getElementById("profile-edit-wrap");
+  const profileEditForm = document.getElementById("profile-edit-form");
+  document.getElementById("edit-profile-btn").addEventListener("click", () => {
+    const user = state.user || {};
+    document.getElementById("profile-edit-name").value = user.name || "";
+    document.getElementById("profile-edit-mobile").value = user.mobile || "";
+    document.getElementById("profile-edit-village").value = user.village || "";
+    document.getElementById("profile-edit-taluk").value = user.taluk || "";
+    document.getElementById("profile-edit-district").value = user.district || "";
+    document.getElementById("profile-edit-error").classList.remove("show");
+    profileEditWrap.style.display = "block";
+  });
+  document.getElementById("profile-edit-cancel").addEventListener("click", () => {
+    profileEditWrap.style.display = "none";
+  });
+  profileEditForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const errorBox = document.getElementById("profile-edit-error");
+    const saveButton = document.getElementById("profile-edit-save");
+    errorBox.classList.remove("show");
+    saveButton.disabled = true;
+    try {
+      const { user } = await api.updateProfile({
+        name: document.getElementById("profile-edit-name").value.trim(),
+        mobile: document.getElementById("profile-edit-mobile").value.trim(),
+        village: document.getElementById("profile-edit-village").value.trim(),
+        taluk: document.getElementById("profile-edit-taluk").value.trim(),
+        district: document.getElementById("profile-edit-district").value.trim(),
+      });
+      state.user = user;
+      Auth.setSession(Auth.getToken(), user);
+      renderSidebarUser();
+      renderSettings();
+      profileEditWrap.style.display = "none";
+      showToast("Profile updated.", "success");
+    } catch (error) {
+      errorBox.textContent = error.message || "Could not update your profile.";
+      errorBox.classList.add("show");
+    } finally {
+      saveButton.disabled = false;
+    }
+  });
   document.getElementById("download-data-btn").addEventListener("click", () => {
     const blob = new Blob([JSON.stringify({ user: state.user, plots: state.plots }, null, 2)], { type: "application/json" });
     const link = document.createElement("a");
@@ -844,6 +944,12 @@ function bindSettings() {
 // Chart helpers
 // ---------------------------------------------------------------------------
 function drawLineChart(canvasId, { labels, datasets }) {
+  if (!window.Chart) {
+    loadExternalLibrary("Chart", "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js")
+      .then(() => drawLineChart(canvasId, { labels, datasets }))
+      .catch(() => showToast("The chart could not be loaded. Please refresh and try again.", "error"));
+    return;
+  }
   const ctx = document.getElementById(canvasId).getContext("2d");
   if (state.charts[canvasId]) state.charts[canvasId].destroy();
   state.charts[canvasId] = new Chart(ctx, {
@@ -873,6 +979,12 @@ function drawLineChart(canvasId, { labels, datasets }) {
 }
 
 function drawBarChart(canvasId, { labels, data }) {
+  if (!window.Chart) {
+    loadExternalLibrary("Chart", "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js")
+      .then(() => drawBarChart(canvasId, { labels, data }))
+      .catch(() => showToast("The chart could not be loaded. Please refresh and try again.", "error"));
+    return;
+  }
   const ctx = document.getElementById(canvasId).getContext("2d");
   if (state.charts[canvasId]) state.charts[canvasId].destroy();
   state.charts[canvasId] = new Chart(ctx, {
