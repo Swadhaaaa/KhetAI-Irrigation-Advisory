@@ -1830,6 +1830,12 @@ table.data-table tr:last-child td {
   border-color: #FDE68A;
 }
 
+#advisory-trust-bar .trust-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
 .explanation-list {
   margin: 12px 0 0 0;
   padding-left: 20px;

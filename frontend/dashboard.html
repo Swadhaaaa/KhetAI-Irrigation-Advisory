@@ -111,7 +111,7 @@
           <h2 id="topbar-title" data-i18n="nav.overview">Overview</h2>
         </div>
         <div class="topbar-actions">
-          <select class="lang-select" id="lang-select" title="Advisory language">
+          <select class="lang-select" id="lang-select" data-i18n-title="settings.language" title="Advisory language">
             <option value="en">EN</option>
             <option value="hi">हिंदी</option>
             <option value="kn">ಕನ್ನಡ</option>
@@ -227,10 +227,10 @@
 
           <!-- WHY THIS RECOMMENDATION -->
           <div class="card" id="advisory-why-card">
-            <h3 style="font-size:16px; color:var(--cane-green-dark);">WHY THIS RECOMMENDATION?</h3>
-            <p class="card-sub">Derived directly from FAO-56 crop physics and localized telemetry</p>
+            <h3 style="font-size:16px; color:var(--cane-green-dark);" data-i18n="advisory.whyThisRecommendation">WHY THIS RECOMMENDATION?</h3>
+            <p class="card-sub" data-i18n="advisory.whyThisRecommendationSub">Derived directly from FAO-56 crop physics and localized telemetry</p>
             <ul class="explanation-list" id="advisory-explanation-list">
-              <li>Loading explanation reasoning…</li>
+              <li data-i18n="advisory.loadingExplanation">Loading explanation reasoning…</li>
             </ul>
           </div>
 
@@ -238,33 +238,33 @@
 
           <div class="grid grid-2-even">
             <div class="card">
-              <h3>Model breakdown</h3>
-              <p class="card-sub">How this recommendation was calculated</p>
+              <h3 data-i18n="advisory.modelBreakdown">Model breakdown</h3>
+              <p class="card-sub" data-i18n="advisory.calculated">How this recommendation was calculated</p>
               <div style="height:12px"></div>
               <table class="data-table" id="advisory-breakdown-table">
                 <tbody></tbody>
               </table>
             </div>
             <div class="card">
-              <h3>Log an irrigation event</h3>
-              <p class="card-sub">Confirm a pump run so future advisories account for it</p>
+              <h3 data-i18n="advisory.logEvent">Log an irrigation event</h3>
+              <p class="card-sub" data-i18n="advisory.confirmPump">Confirm a pump run so future advisories account for it</p>
               <form id="log-irrigation-form" style="margin-top:14px;">
                 <div class="field-row">
-                  <div class="field"><label>Duration (hours)</label><input type="number" step="0.1" min="0"
+                  <div class="field"><label data-i18n="labels.durationHours">Duration (hours)</label><input type="number" step="0.1" min="0"
                       id="log-duration" value="2" required></div>
-                  <div class="field"><label>Water applied (m³)</label><input type="number" step="1" min="0"
+                  <div class="field"><label data-i18n="labels.waterApplied">Water applied (m³)</label><input type="number" step="1" min="0"
                       id="log-water" value="100" required></div>
                 </div>
-                <button class="btn btn-primary btn-block" style="margin-top:16px;" type="submit">Log irrigation</button>
+                <button class="btn btn-primary btn-block" style="margin-top:16px;" type="submit" data-i18n="advisory.logIrrigation">Log irrigation</button>
               </form>
               <div style="height:16px"></div>
-              <h3 style="font-size:14px">Recent irrigation history</h3>
+              <h3 style="font-size:14px" data-i18n="advisory.recentHistory">Recent irrigation history</h3>
               <table class="data-table" id="irrigation-history-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Duration</th>
-                    <th>Water (m³)</th>
+                    <th data-i18n="common.date">Date</th>
+                    <th data-i18n="labels.duration">Duration</th>
+                    <th data-i18n="common.waterM3">Water (m³)</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -276,10 +276,10 @@
           <div class="scenario-panel">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
               <div>
-                <h3 style="font-size:15px; color:var(--cane-green-dark); margin:0;">SIMULATED SCENARIO DEMO CONTROL</h3>
-                <p class="card-sub" style="margin-top:2px;">Simulate field conditions and execute real backend decision logic</p>
+                <h3 style="font-size:15px; color:var(--cane-green-dark); margin:0;" data-i18n="scenario.demoControlTitle">SIMULATED SCENARIO DEMO CONTROL</h3>
+                <p class="card-sub" style="margin-top:2px;" data-i18n="scenario.demoControlSubtitle">Simulate field conditions and execute real backend decision logic</p>
               </div>
-              <span class="trust-badge" style="background:#FEF3C7; color:#92400E; border-color:#FCD34D;">DEMO CONTROL</span>
+              <span class="trust-badge" style="background:#FEF3C7; color:#92400E; border-color:#FCD34D;" data-i18n="scenario.demoControlBadge">DEMO CONTROL</span>
             </div>
             <div class="scenario-buttons">
               <button type="button" class="btn-scenario active" data-scenario="SCENARIO_1_NORMAL">Normal Moisture (26%)</button>
@@ -295,14 +295,14 @@
           <div class="card" id="experimental-ml-card" style="border-left:4px solid var(--cane-gold, #c98a2c);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
               <div>
-                <h3 style="font-size:16px; color:var(--cane-green-dark, #1f4d3d); margin:0;">
+                <h3 style="font-size:16px; color:var(--cane-green-dark, #1f4d3d); margin:0;" data-i18n="ml.title">
                   Experimental ML Analysis
                 </h3>
-                <p class="card-sub" style="margin-top:2px;">
+                <p class="card-sub" style="margin-top:2px;" data-i18n="ml.subtitle">
                   Secondary analytical model for research comparison — does not override Agronomic Baseline
                 </p>
               </div>
-              <span class="badge" style="background:#FEF3C7; color:#92400E; font-weight:600; border:1px solid #FCD34D;" id="ml-status-badge">
+              <span class="badge" style="background:#FEF3C7; color:#92400E; font-weight:600; border:1px solid #FCD34D;" id="ml-status-badge" data-i18n="ml.badge">
                 EXPERIMENTAL MODEL
               </span>
             </div>
@@ -340,17 +340,17 @@
             <div style="background:rgba(22,33,28,0.03); padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:12px;">
               <strong style="display:block; margin-bottom:4px; color:var(--cane-green-dark, #1f4d3d);">Feature Provenance Breakdown:</strong>
               <ul style="margin:0; padding-left:20px; color:var(--ink-soft, #4b5563);">
-                <li><strong>ML Training Data:</strong> External research dataset (Sugarcane Irrigation Dataset for SIDSS Framework, Zenodo DOI: 10.5281/zenodo.19725692)</li>
-                <li><strong>Current Sensor:</strong> <span id="ml-prov-sensor">Simulated demo telemetry</span></li>
-                <li><strong>Current Weather:</strong> <span id="ml-prov-weather">Live Open-Meteo API / Cached / Fallback</span></li>
-                <li><strong>Primary Irrigation Engine:</strong> FAO-56 agronomic baseline</li>
+                <li><strong data-i18n="ml.trainingDataLabel">ML Training Data:</strong> <span data-i18n="ml.trainingDataValue">External research dataset (Sugarcane Irrigation Dataset for SIDSS Framework, Zenodo DOI: 10.5281/zenodo.19725692)</span></li>
+                <li><strong data-i18n="ml.currentSensorLabel">Current Sensor:</strong> <span id="ml-prov-sensor">Simulated demo telemetry</span></li>
+                <li><strong data-i18n="ml.currentWeatherLabel">Current Weather:</strong> <span id="ml-prov-weather">Live Open-Meteo API / Cached / Fallback</span></li>
+                <li><strong data-i18n="ml.primaryEngineLabel">Primary Irrigation Engine:</strong> <span data-i18n="ml.primaryEngineValue">FAO-56 agronomic baseline</span></li>
               </ul>
             </div>
 
             <!-- Scientific Disclaimer -->
             <div class="disclaimer-banner" style="background:#FFFBEB; border:1px solid #FCD34D; color:#78350F; padding:12px 16px; border-radius:8px; font-size:12.5px; line-height:1.5;">
-              <strong>Scientific Disclaimer:</strong>
-              This experimental model was trained on an external model-simulated sugarcane research dataset. Its test metrics describe performance on that dataset and do not establish real-world field accuracy.
+              <strong data-i18n="ml.disclaimerTitle">Scientific Disclaimer:</strong>
+              <span data-i18n="ml.disclaimerBody">This experimental model was trained on an external model-simulated sugarcane research dataset. Its test metrics describe performance on that dataset and do not establish real-world field accuracy.</span>
             </div>
           </div>
 
@@ -358,21 +358,21 @@
 
           <!-- TECHNICAL DETAILS PANEL -->
           <button type="button" class="technical-panel-toggle" id="technical-panel-toggle">
-            <span>View Technical Details &amp; Provenance</span>
+            <span data-i18n="technical.detailsToggle">View Technical Details &amp; Provenance</span>
             <span id="technical-panel-arrow">▼</span>
           </button>
           <div class="technical-panel-content" id="advisory-technical-panel">
             <table class="data-table">
               <tbody>
-                <tr><th>Engine Model Type</th><td id="tech-model-type">AGRONOMIC_BASELINE</td></tr>
-                <tr><th>Feature Version</th><td id="tech-feature-version">v1.0-fao56</td></tr>
-                <tr><th>Weather Provenance</th><td id="tech-weather-provenance">LIVE_API</td></tr>
-                <tr><th>Sensor Provenance</th><td id="tech-sensor-provenance">SIMULATED</td></tr>
-                <tr><th>Data Quality Status</th><td id="tech-data-quality">VALID</td></tr>
-                <tr><th>Calculation Timestamp</th><td id="tech-timestamp">—</td></tr>
-                <tr><th>ML Layer Status</th><td><span class="badge" style="background:#FEE2E2; color:#991B1B; font-weight:600;" id="tech-ml-status">INSUFFICIENT_HISTORICAL_DATA</span></td></tr>
-                <tr><th>ML Model Version</th><td id="tech-ml-version">experimental-v1</td></tr>
-                <tr><th>ML Training Requirement</th><td id="tech-ml-reason" style="font-size:12px; color:var(--text-muted);">Requires physical IoT hardware dataset (min 30 records). Simulator telemetry cannot be used for ML model training.</td></tr>
+                <tr><th data-i18n="technical.engineModelType">Engine Model Type</th><td id="tech-model-type">AGRONOMIC_BASELINE</td></tr>
+                <tr><th data-i18n="technical.featureVersion">Feature Version</th><td id="tech-feature-version">v1.0-fao56</td></tr>
+                <tr><th data-i18n="technical.weatherProvenance">Weather Provenance</th><td id="tech-weather-provenance">LIVE_API</td></tr>
+                <tr><th data-i18n="technical.sensorProvenance">Sensor Provenance</th><td id="tech-sensor-provenance">SIMULATED</td></tr>
+                <tr><th data-i18n="technical.dataQualityStatus">Data Quality Status</th><td id="tech-data-quality">VALID</td></tr>
+                <tr><th data-i18n="technical.calculationTimestamp">Calculation Timestamp</th><td id="tech-timestamp">—</td></tr>
+                <tr><th data-i18n="technical.mlLayerStatus">ML Layer Status</th><td><span class="badge" style="background:#FEE2E2; color:#991B1B; font-weight:600;" id="tech-ml-status">INSUFFICIENT_HISTORICAL_DATA</span></td></tr>
+                <tr><th data-i18n="technical.mlModelVersion">ML Model Version</th><td id="tech-ml-version">experimental-v1</td></tr>
+                <tr><th data-i18n="technical.mlTrainingRequirement">ML Training Requirement</th><td id="tech-ml-reason" style="font-size:12px; color:var(--text-muted);">Requires physical IoT hardware dataset (min 30 records). Simulator telemetry cannot be used for ML model training.</td></tr>
               </tbody>
             </table>
           </div>
@@ -382,14 +382,14 @@
         <section class="view" id="view-weather">
           <div class="grid grid-2">
             <div class="card">
-              <h3>5-day forecast</h3>
+              <h3 data-i18n="weather.fiveDayForecast">5-day forecast</h3>
               <p class="card-sub" id="weather-source-note">—</p>
               <div style="height:16px"></div>
               <div class="grid grid-4" id="weather-cards" style="grid-template-columns: repeat(5,1fr);"></div>
             </div>
             <div class="card">
-              <h3>Plot location</h3>
-              <p class="card-sub">Used to fetch localized weather data</p>
+              <h3 data-i18n="weather.plotLocation">Plot location</h3>
+              <p class="card-sub" data-i18n="weather.plotLocationSubtitle">Used to fetch localized weather data</p>
               <div style="height:12px"></div>
               <div class="map-box" id="weather-map"></div>
             </div>
@@ -401,7 +401,7 @@
           <div class="grid grid-4" id="sensor-kpis"></div>
           <div style="height:24px"></div>
           <div class="card">
-            <h3>Soil &amp; environmental trend — last 14 days</h3>
+            <h3 data-i18n="sensors.trendTitle">Soil &amp; environmental trend — last 14 days</h3>
             <div style="height:12px"></div>
             <canvas id="sensor-chart" height="90"></canvas>
           </div>
@@ -411,27 +411,27 @@
         <section class="view" id="view-fertigation">
           <div class="grid grid-2">
             <div class="card">
-              <h3 id="fert-stage-title">Fertigation Plan</h3>
+              <h3 id="fert-stage-title" data-i18n="fertigation.planTitle">Fertigation Plan</h3>
               <p class="card-sub" id="fert-note">—</p>
               <div style="height:16px"></div>
               <div class="fertigation-list" id="fert-list"></div>
               <div id="fert-warning" style="display:none; margin-top:16px;" class="form-error show"></div>
             </div>
             <div class="card">
-              <h3>Per-acre guideline</h3>
-              <p class="card-sub">Standard dose before scaling to your plot area</p>
+              <h3 data-i18n="fertigation.perAcreTitle">Per-acre guideline</h3>
+              <p class="card-sub" data-i18n="fertigation.perAcreSubtitle">Standard dose before scaling to your plot area</p>
               <div style="height:16px"></div>
               <table class="data-table" id="fert-per-acre-table">
                 <thead>
                   <tr>
-                    <th>Nutrient</th>
-                    <th>kg / acre</th>
+                    <th data-i18n="fertigation.nutrient">Nutrient</th>
+                    <th data-i18n="fertigation.kgPerAcre">kg / acre</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
               </table>
               <div style="height:16px"></div>
-              <p class="card-sub">Apply with irrigation scheduled for <b id="fert-apply-date">—</b>.</p>
+              <p class="card-sub"><span data-i18n="fertigation.applyWithIrrigation">Apply with irrigation scheduled for</span> <b id="fert-apply-date">—</b>.</p>
             </div>
           </div>
         </section>
@@ -440,26 +440,25 @@
         <section class="view" id="view-yield">
           <div class="grid grid-2">
             <div class="card">
-              <h3>Predicted yield</h3>
+              <h3 data-i18n="yield.predictedYieldTitle">Predicted yield</h3>
               <p class="card-sub" id="yield-confidence-note">—</p>
               <div style="height:20px"></div>
               <div style="display:flex; align-items:baseline; gap:14px;">
                 <b style="font-family:var(--font-mono); font-size:44px; color:var(--cane-green-dark);"
                   id="yield-value">—</b>
-                <span style="color:var(--ink-soft); font-size:14px;">tonnes / hectare</span>
+                <span style="color:var(--ink-soft); font-size:14px;" data-i18n="yield.tonnesPerHectare">tonnes / hectare</span>
               </div>
-              <p style="margin-top:10px; color:var(--ink-soft); font-size:14px;">Range: <b id="yield-range">—</b> t/ha
+              <p style="margin-top:10px; color:var(--ink-soft); font-size:14px;"><span data-i18n="yield.rangeLabel">Range:</span> <b id="yield-range">—</b> <span data-i18n="yield.tHa">t/ha</span>
               </p>
               <div style="height:20px"></div>
               <canvas id="yield-chart" height="90"></canvas>
             </div>
             <div class="card">
-              <h3>What's driving this prediction</h3>
-              <p class="card-sub">Average water-stress exposure over the last 14 days</p>
+              <h3 data-i18n="yield.drivingPredictionTitle">What's driving this prediction</h3>
+              <p class="card-sub" data-i18n="yield.drivingPredictionSubtitle">Average water-stress exposure over the last 14 days</p>
               <div style="height:20px"></div>
               <div id="yield-stress-gauge" style="display:flex; justify-content:center;"></div>
-              <p style="text-align:center; margin-top:10px; color:var(--ink-soft); font-size:13.5px;">Lower stress
-                exposure → closer to the top of the predicted range.</p>
+              <p style="text-align:center; margin-top:10px; color:var(--ink-soft); font-size:13.5px;" data-i18n="yield.stressExplanation">Lower stress exposure → closer to the top of the predicted range.</p>
             </div>
           </div>
         </section>
@@ -469,8 +468,8 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Alerts &amp; Notifications</h3>
-                <p class="card-sub">Generated live from current sensor and weather conditions</p>
+                <h3 data-i18n="alerts.title">Alerts &amp; Notifications</h3>
+                <p class="card-sub" data-i18n="alerts.subtitle">Generated live from current sensor and weather conditions</p>
               </div>
             </div>
             <div id="alerts-list"></div>
@@ -483,56 +482,56 @@
             <div class="card">
               <div class="card-head">
                 <div>
-                  <h3>Farmer profile</h3>
-                  <p class="card-sub">Your registered account details</p>
+                  <h3 data-i18n="settings.profileTitle">Farmer profile</h3>
+                  <p class="card-sub" data-i18n="settings.profileSubtitle">Your registered account details</p>
                 </div>
-                <span class="settings-status">Active</span>
+                <span class="settings-status" data-i18n="settings.statusActive">Active</span>
               </div>
               <div style="height:16px"></div>
               <table class="data-table">
                 <tbody>
                   <tr>
-                    <th>Name</th>
+                    <th data-i18n="settings.nameLabel">Name</th>
                     <td id="settings-name">—</td>
                   </tr>
                   <tr>
-                    <th>Mobile</th>
+                    <th data-i18n="settings.mobileLabel">Mobile</th>
                     <td id="settings-mobile">—</td>
                   </tr>
                   <tr>
-                    <th>Village</th>
+                    <th data-i18n="settings.table.village">Village</th>
                     <td id="settings-village">—</td>
                   </tr>
                   <tr>
-                    <th>Taluk</th>
+                    <th data-i18n="settings.table.taluk">Taluk</th>
                     <td id="settings-taluk">—</td>
                   </tr>
                   <tr>
-                    <th>District</th>
+                    <th data-i18n="settings.table.district">District</th>
                     <td id="settings-district">—</td>
                   </tr>
                   <tr>
-                    <th>Member since</th>
+                    <th data-i18n="settings.table.memberSince">Member since</th>
                     <td id="settings-since">—</td>
                   </tr>
                 </tbody>
               </table>
               <div class="settings-actions">
-                <button class="btn btn-outline btn-sm" id="edit-profile-btn" type="button">Edit profile</button>
-                <button class="btn btn-ghost btn-sm" id="download-data-btn" type="button">Download my data</button>
+                <button class="btn btn-outline btn-sm" id="edit-profile-btn" type="button" data-i18n="settings.buttons.editProfile">Edit profile</button>
+                <button class="btn btn-ghost btn-sm" id="download-data-btn" type="button" data-i18n="settings.buttons.downloadData">Download my data</button>
               </div>
             </div>
 
             <div class="card">
               <div class="card-head">
                 <div>
-                  <h3>Advisory preferences</h3>
-                  <p class="card-sub">Choose how KhetAI presents recommendations</p>
+                  <h3 data-i18n="settings.prefs.title">Advisory preferences</h3>
+                  <p class="card-sub" data-i18n="settings.prefs.subtitle">Choose how KhetAI presents recommendations</p>
                 </div>
               </div>
               <div class="settings-form">
                 <div class="field">
-                  <label for="settings-language">Advisory language</label>
+                  <label for="settings-language" data-i18n="settings.language">Advisory language</label>
                   <select id="settings-language">
                     <option value="en">English</option>
                     <option value="hi">हिंदी</option>
@@ -541,14 +540,14 @@
                   </select>
                 </div>
                 <div class="field">
-                  <label for="settings-units">Measurement units</label>
+                  <label for="settings-units" data-i18n="settings.units">Measurement units</label>
                   <select id="settings-units">
                     <option value="metric">Metric — acres, m³, mm</option>
                     <option value="imperial">Imperial — acres, gallons, inches</option>
                   </select>
                 </div>
                 <div class="setting-option">
-                  <div><b>Plain-language recommendations</b><span>Keep advice short and farmer-friendly</span></div>
+                  <div><b data-i18n="settings.plainLanguage">Plain-language recommendations</b><span data-i18n="settings.plainLanguageHint">Keep advice short and farmer-friendly</span></div>
                   <label class="switch"><input type="checkbox" id="plain-language-toggle" checked><span></span></label>
                 </div>
               </div>
@@ -557,22 +556,22 @@
             <div class="card">
               <div class="card-head">
                 <div>
-                  <h3>Notifications</h3>
-                  <p class="card-sub">Stay ahead of irrigation and weather changes</p>
+                  <h3 data-i18n="settings.notifications.title">Notifications</h3>
+                  <p class="card-sub" data-i18n="settings.notifications.subtitle">Stay ahead of irrigation and weather changes</p>
                 </div>
               </div>
               <div class="settings-options">
                 <div class="setting-option">
-                  <div><b>Irrigation reminders</b><span>Get notified before the next recommended event</span></div>
+                  <div><b data-i18n="settings.irrigationReminders">Irrigation reminders</b><span data-i18n="settings.irrigationRemindersHint">Get notified before the next recommended event</span></div>
                   <label class="switch"><input type="checkbox" id="irrigation-notifications"
                       checked><span></span></label>
                 </div>
                 <div class="setting-option">
-                  <div><b>Rainfall alerts</b><span>Know when rain may change your schedule</span></div><label
+                  <div><b data-i18n="settings.rainfallAlerts">Rainfall alerts</b><span data-i18n="settings.rainfallAlertsHint">Know when rain may change your schedule</span></div><label
                     class="switch"><input type="checkbox" id="rain-notifications" checked><span></span></label>
                 </div>
                 <div class="setting-option">
-                  <div><b>Sensor health alerts</b><span>Be alerted when readings look unusual</span></div><label
+                  <div><b data-i18n="settings.sensorHealthAlerts">Sensor health alerts</b><span data-i18n="settings.sensorHealthAlertsHint">Be alerted when readings look unusual</span></div><label
                     class="switch"><input type="checkbox" id="sensor-notifications" checked><span></span></label>
                 </div>
               </div>
@@ -581,18 +580,18 @@
             <div class="card">
               <div class="card-head">
                 <div>
-                  <h3>Account &amp; security</h3>
-                  <p class="card-sub">Manage access to your farmer account</p>
+                  <h3 data-i18n="settings.security.title">Account &amp; security</h3>
+                  <p class="card-sub" data-i18n="settings.security.subtitle">Manage access to your farmer account</p>
                 </div>
               </div>
               <div class="security-list">
-                <button class="setting-action" id="change-password-btn" type="button"><span><b>Change
-                      password</b><small>Update your login password</small></span><strong>›</strong></button>
-                <button class="setting-action" id="sign-out-all-btn" type="button"><span><b>Sign out
-                      everywhere</b><small>Clear this account from all saved
+                <button class="setting-action" id="change-password-btn" type="button"><span><b data-i18n="settings.changePassword">Change
+                      password</b><small data-i18n="settings.changePasswordHint">Update your login password</small></span><strong>›</strong></button>
+                <button class="setting-action" id="sign-out-all-btn" type="button"><span><b data-i18n="settings.signOutEverywhere">Sign out
+                      everywhere</b><small data-i18n="settings.signOutEverywhereHint">Clear this account from all saved
                       sessions</small></span><strong>›</strong></button>
-                <button class="setting-action danger" id="delete-account-btn" type="button"><span><b>Delete
-                      account</b><small>Permanently remove your profile and
+                <button class="setting-action danger" id="delete-account-btn" type="button"><span><b data-i18n="settings.deleteAccount">Delete
+                      account</b><small data-i18n="settings.deleteAccountHint">Permanently remove your profile and
                       plots</small></span><strong>›</strong></button>
               </div>
             </div>
@@ -606,16 +605,16 @@
   <div class="modal-backdrop" id="plot-modal-backdrop">
     <div class="modal">
       <div class="modal-head">
-        <h3>Add a new plot</h3>
+        <h3 data-i18n="common.addPlotModalTitle">Add a new plot</h3>
         <button class="modal-close" id="modal-close">&times;</button>
       </div>
       <form id="plot-form">
-        <div class="field"><label>Plot name</label><input id="plot-name" placeholder="Patil Farm - Plot 16" required>
+        <div class="field"><label data-i18n="common.plotName">Plot name</label><input id="plot-name" data-i18n-placeholder="common.plotName" placeholder="Patil Farm - Plot 16" required>
         </div>
         <div class="field-row">
-          <div class="field"><label>Area (acres)</label><input id="plot-area" type="number" step="0.1" min="0.1"
-              placeholder="5.6" required></div>
-          <div class="field"><label>Soil type</label>
+          <div class="field"><label data-i18n="common.areaAcres">Area (acres)</label><input id="plot-area" type="number" step="0.1" min="0.1"
+              data-i18n-placeholder="common.areaAcres" placeholder="5.6" required></div>
+          <div class="field"><label data-i18n="common.soilType">Soil type</label>
             <select id="plot-soil" required>
               <option value="Sandy">Sandy</option>
               <option value="Sandy Loam">Sandy Loam</option>
@@ -626,20 +625,20 @@
           </div>
         </div>
         <div class="field-row">
-          <div class="field"><label>Variety</label><input id="plot-variety" placeholder="Co 86032" value="Co 86032">
+          <div class="field"><label data-i18n="common.variety">Variety</label><input id="plot-variety" data-i18n-placeholder="common.variety" placeholder="Co 86032" value="Co 86032">
           </div>
-          <div class="field"><label>Planting date</label><input id="plot-planting" type="date" required></div>
+          <div class="field"><label data-i18n="common.plantingDate">Planting date</label><input id="plot-planting" type="date" required></div>
         </div>
         <div class="field hint-field">
-          <label>Location (optional)</label>
+          <label data-i18n="common.locationOptional">Location (optional)</label>
           <div class="field-row">
-            <input id="plot-lat" type="number" step="0.0001" placeholder="Latitude">
-            <input id="plot-lng" type="number" step="0.0001" placeholder="Longitude">
+            <input id="plot-lat" type="number" step="0.0001" data-i18n-placeholder="common.lat" placeholder="Latitude">
+            <input id="plot-lng" type="number" step="0.0001" data-i18n-placeholder="common.lng" placeholder="Longitude">
           </div>
-          <p class="hint">Leave blank to auto-place near Sameerwadi, Northern Karnataka.</p>
+          <p class="hint" data-i18n="common.locationHint">Leave blank to auto-place near Sameerwadi, Northern Karnataka.</p>
         </div>
         <div class="form-error" id="plot-form-error"></div>
-        <button class="btn btn-primary btn-block" style="margin-top:20px;" type="submit">Save plot</button>
+        <button class="btn btn-primary btn-block" style="margin-top:20px;" type="submit" data-i18n="common.savePlot">Save plot</button>
       </form>
     </div>
   </div>
